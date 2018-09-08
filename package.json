@@ -1,0 +1,46 @@
+{
+  "name": "Cell",
+  "version": "1.0.0",
+  "description": "Style DOM elements that follow the Synergy naming convention using Sass",
+  "main": "dist/_synergy.scss",
+  "author": "(Edmund Reed)[http://twitter.com/esr360] <esr360@live.com>",
+  "homepage": "https://github.com/One-Nexus/Cell",
+  "keywords": [
+    "sass",
+    "scss",
+    "OOCSS",
+    "BEM",
+    "modular",
+    "modules",
+    "components",
+    "front-end",
+    "framework",
+    "web"
+  ],
+  "bugs": {
+    "url": "https://github.com/One-Nexus/Cell/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/One-Nexus/Cell.git"
+  },
+  "dependencies": {
+    "Sass-Boost": "^1.1.0"
+  },
+  "devDependencies": {
+    "concat": "^1.0.3",
+    "mocha": "^3.4.2",
+    "node-sass": "^4.9.0",
+    "sass-true": "^3.0.0-beta.1",
+    "sassdoc": "^2.5.0",
+    "stylelint": "^8.4.0"
+  },
+  "scripts": {
+    "lint": "stylelint src/**/*.scss",
+    "test": "mocha test/tests.js",
+    "docs": "sassdoc src/ -d docs/sass",
+    "sass": "node ./build/sass-concat.js",
+    "compile": "npm run lint && npm test && npm run docs && npm run sass"
+  }
+}

@@ -1,0 +1,7 @@
+.idea
+.vscode
+.settings
+.sass-cache
+debug.log
+node_modules
+docs
