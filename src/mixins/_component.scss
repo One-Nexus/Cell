@@ -107,8 +107,11 @@
 
     @if selector-is-root-module($target) {
         @each $component in $components {
-            $component: if(map-get($config, $component), map-get($config, $component), ());
-            $content: merge-css-maps($content, $component);
+            // this only gets components that are first level in the config;
+            // @TODO find way to recurse so no need to use `component(foo)`
+            // on lower levels (allow for just `foo`)
+            $component-styles: if(map-get($config, $component), map-get($config, $component), ());
+            $content: merge-css-maps($content, $component-styles);
         }
     }
 

@@ -10,7 +10,6 @@
 @function config($map-old: (), $map-new: (), $parser: $sass-config-parser) {
 
     $map-old: map-merge((
-        'selector-type'  : $selector-type,
         'extend-options' : $extend-options
     ), $map-old);
 
