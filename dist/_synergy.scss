@@ -1918,12 +1918,12 @@ $css-properties: (
 ///
 ///     <div class="header">...</div>
 @mixin module(
-    $modules: if(variable-exists('config'), (map-get($config, 'name')), '')
+    $modules: if(variable-exists('config'), (map-get($config, 'name')), ''),
+    $content: ()
 ) {
-    $content: false;
+    $config: () !default;
 
     @if type-of($modules) == 'map' {
-        $content: $modules;
         $modules: if(variable-exists('config'), (map-get($config, 'name')), '');
     }
 
@@ -1964,25 +1964,12 @@ $css-properties: (
     $target: if($targetExists, ('module': $module, 'target': map-get($config, 'target')), false) !global;
 
     @if not $disable-output {
-        // @TODO
-        // @if $type == 'natural' {
-        //     @include module-content($modules, $type, $config, $target);
-
-        //     @content;
-        // }
-        // @else {
-        //     #{$selectors} {
-        //         @if not $nested {
-        //             @include module-content($modules, $type, $config, $target);
-        //         }
-
-        //         @content;
-        //     }
-        // }
         #{$selectors} {
             @if not $nested {
                 @include module-content($modules, $config, $target);
             }
+
+            @include get-css-from-map($content);
 
             @content;
         }

@@ -57,21 +57,6 @@
     $target: if($targetExists, ('module': $module, 'target': map-get($config, 'target')), false) !global;
 
     @if not $disable-output {
-        // @TODO
-        // @if $type == 'natural' {
-        //     @include module-content($modules, $type, $config, $target);
-
-        //     @content;
-        // }
-        // @else {
-        //     #{$selectors} {
-        //         @if not $nested {
-        //             @include module-content($modules, $type, $config, $target);
-        //         }
-
-        //         @content;
-        //     }
-        // }
         #{$selectors} {
             @if not $nested {
                 @include module-content($modules, $config, $target);
