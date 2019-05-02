@@ -15,9 +15,8 @@
             )
         );
 
-        $actual   : config($default, $custom);
-        $expected : (
-            'selector-type': 'flex', 
+        $actual: config($default, $custom);
+        $expected: (
             'extend-options': true,
             'breakpoints': (
                 'break-1': 420px,

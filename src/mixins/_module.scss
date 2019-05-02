@@ -11,12 +11,12 @@
 ///
 ///     <div class="header">...</div>
 @mixin module(
-    $modules: if(variable-exists('config'), (map-get($config, 'name')), '')
+    $modules: if(variable-exists('config'), (map-get($config, 'name')), ''),
+    $content: ()
 ) {
-    $content: false;
+    $config: () !default;
 
     @if type-of($modules) == 'map' {
-        $content: $modules;
         $modules: if(variable-exists('config'), (map-get($config, 'name')), '');
     }
 
@@ -76,6 +76,8 @@
             @if not $nested {
                 @include module-content($modules, $config, $target);
             }
+
+            @include get-css-from-map($content);
 
             @content;
         }

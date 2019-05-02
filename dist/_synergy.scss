@@ -356,9 +356,6 @@ $modifier-glue: '-' !default;
 // Set the glue to chain components to modules
 $component-glue: '_' !default;
 
-// Set the default selector type (flex | chain | static)
-$selector-type: 'flex' !default;
-
 // Extend each module option as a modifier by default?
 $extend-options: true !default;
 
@@ -394,7 +391,6 @@ $module: null !default;
 @function config($map-old: (), $map-new: (), $parser: $sass-config-parser) {
 
     $map-old: map-merge((
-        'selector-type'  : $selector-type,
         'extend-options' : $extend-options
     ), $map-old);
 
@@ -1553,6 +1549,7 @@ $css-properties: (
 ///
 /// @param {map} $map - The map from which to get CSS
 @mixin get-css-from-map($map) {
+    // @debug $map;
     @each $property, $value in $map {
         @if type-of($property) == 'string' {
             // $property defines new Modifier
@@ -1577,7 +1574,7 @@ $css-properties: (
             }
 
             // $property defines :hover styles
-            @else if $property == 'hover' {
+            @else if $property == ':hover' {
                 @include hover {
                     @include get-css-from-map($value);
                 }
@@ -1913,7 +1910,6 @@ $css-properties: (
 /// @author [@esr360](http://twitter.com/esr360)
 ///
 /// @param {string|list} $modules - The module(s) you wish to create
-/// @param {string} $type - Determine module type
 ///
 /// @example
 ///     @include module('header') {
@@ -1922,8 +1918,7 @@ $css-properties: (
 ///
 ///     <div class="header">...</div>
 @mixin module(
-    $modules: if(variable-exists('config'), (map-get($config, 'name')), ''),
-    $type: if(variable-exists('config'), (map-get($config, 'selector-type')), $selector-type)
+    $modules: if(variable-exists('config'), (map-get($config, 'name')), '')
 ) {
     $content: false;
 
@@ -1954,15 +1949,13 @@ $css-properties: (
     $selectors: ();
 
     @each $module in $modules {
-        @if $type == 'flex' or $type == 'static' {
-            $selectors: join($selectors, '.#{$module}', comma);
-        }
-        @if $type == 'flex' or $type == 'chain' {
-            $selectors: join($selectors, '[class*="#{$module}#{$modifier-glue}"]', comma);
-        }
-        @if $type == 'data' {
-            $selectors: join($selectors, '[data-#{$module}]', comma);
-        }
+        $selectors: join($selectors, '.#{$module}', comma);
+        $selectors: join($selectors, '[class*="#{$module}#{$modifier-glue}"]', comma);
+
+        // @TODO
+        // @if $type == 'data' {
+        //     $selectors: join($selectors, '[data-#{$module}]', comma);
+        // }
     }
 
     $targetExists: variable-exists('config') and map-has-key($config, 'target');
@@ -1971,19 +1964,27 @@ $css-properties: (
     $target: if($targetExists, ('module': $module, 'target': map-get($config, 'target')), false) !global;
 
     @if not $disable-output {
-        @if $type == 'natural' {
-            @include module-content($modules, $type, $config, $target);
+        // @TODO
+        // @if $type == 'natural' {
+        //     @include module-content($modules, $type, $config, $target);
+
+        //     @content;
+        // }
+        // @else {
+        //     #{$selectors} {
+        //         @if not $nested {
+        //             @include module-content($modules, $type, $config, $target);
+        //         }
+
+        //         @content;
+        //     }
+        // }
+        #{$selectors} {
+            @if not $nested {
+                @include module-content($modules, $config, $target);
+            }
 
             @content;
-        }
-        @else {
-            #{$selectors} {
-                @if not $nested {
-                    @include module-content($modules, $type, $config, $target);
-                }
-
-                @content;
-            }
         }
     }
 }
@@ -1991,10 +1992,9 @@ $css-properties: (
 /// Render a module's content
 ///
 /// @param {string|list} $module
-/// @param {string} $type
 /// @param {map} $config
 /// @param {*} $target
-@mixin module-content($module, $type, $config, $target) {
+@mixin module-content($module, $config, $target) {
     @include extend-modifiers;
     @include combine-modifiers;
 
@@ -2015,9 +2015,8 @@ $css-properties: (
 /// Alias for module() mixin
 ///
 /// @param {string|list} $modules - The module(s) you wish to create
-/// @param {string} $type - Determine module type
-@mixin modules($modules, $type: $selector-type) {
-    @include module($modules, $type) {
+@mixin modules($modules) {
+    @include module($modules) {
         @content;
     }
 }
@@ -2152,8 +2151,11 @@ $css-properties: (
 
     @if selector-is-root-module($target) {
         @each $component in $components {
-            $component: if(map-get($config, $component), map-get($config, $component), ());
-            $content: merge-css-maps($content, $component);
+            // this only gets components that are first level in the config;
+            // @TODO find way to recurse so no need to use `component(foo)`
+            // on lower levels (allow for just `foo`)
+            $component-styles: if(map-get($config, $component), map-get($config, $component), ());
+            $content: merge-css-maps($content, $component-styles);
         }
     }
 
@@ -2201,17 +2203,12 @@ $css-properties: (
 
     $selectors: &;
 
-    $is-local-flex-type: variable-exists('config') and map-get($config, 'selector-type') == 'flex';
-    $is-global-flex-type: not variable-exists('config') and $selector-type == 'flex';
-
     @if str-index(inspect(&), '.#{$module}') {
-        @if $is-local-flex-type or $is-global-flex-type {
-            $selectors: ();
+        $selectors: ();
 
-            @for $i from 1 through length(&) {
-                @if $i % 2 == 0 {
-                    $selectors: append($selectors, nth(&, $i), comma);
-                }
+        @for $i from 1 through length(&) {
+            @if $i % 2 == 0 {
+                $selectors: append($selectors, nth(&, $i), comma);
             }
         }
     }
@@ -2323,12 +2320,8 @@ $css-properties: (
     $child-selectors: &;
     $selectors: ();
     @each $item in $context {
-        @if map-get($config, 'selector-type') == 'flex' or map-get($config, 'selector-type') == 'static' {
-            $selectors: join($selectors, '.#{$module}', comma);
-        }
-        @if map-get($config, 'selector-type') == 'flex' or map-get($config, 'selector-type') == 'chain' {
-            $selectors: join($selectors, '[class*="#{$module}#{$modifier-glue}"]', comma);
-        }
+        $selectors: join($selectors, '.#{$module}', comma);
+        $selectors: join($selectors, '[class*="#{$module}#{$modifier-glue}"]', comma);
     }
     @if $context == 'parent-hovered' {
         @at-root {

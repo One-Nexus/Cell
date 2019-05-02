@@ -32,7 +32,7 @@
     "concat": "^1.0.3",
     "mocha": "^3.4.2",
     "node-sass": "^4.9.0",
-    "sass-true": "^3.0.0-beta.1",
+    "sass-true": "^4.0.0",
     "sassdoc": "^2.5.0",
     "stylelint": "^8.4.0"
   },
@@ -41,6 +41,6 @@
     "test": "mocha test/tests.js",
     "docs": "sassdoc src/ -d docs/sass",
     "sass": "node ./build/sass-concat.js",
-    "compile": "npm run lint && npm test && npm run docs && npm run sass"
+    "build": "npm run lint && npm test && npm run docs && npm run sass"
   }
 }

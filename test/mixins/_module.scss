@@ -6,7 +6,6 @@
 ///****************************************************************
 
 @include describe('Module') {
-
     $result: '';
 
     @include it('Outputs static and chained selectors when only first param is passed') {
@@ -24,24 +23,6 @@
         }
         @include assert-equal(
             $result, '.foo, [class*="foo-"], .bar, [class*="bar-"]'
-        );
-    }
-
-    @include it('Outputs expected selector when `static` type is passed') {
-        @include module('foo', 'static') {
-            $result: #{&};
-        }
-        @include assert-equal(
-            $result, '.foo'
-        );
-    }
-
-    @include it('Outputs expected selectors when `chain` type is passed') {
-        @include module('foo', 'chain') {
-            $result: #{&};
-        }
-        @include assert-equal(
-            $result, '[class*="foo-"]'
         );
     }
 
@@ -71,4 +52,14 @@
         $disable-output: false !global;
     }
 
+    // @include it('Outputs CSS from config') {
+    //     @include assert('You can also describe the assertion...') {
+    //         @include output {
+    //             width: 14em + 2;
+    //         }
+    //         @include expect {
+    //             width: 16em;
+    //         }
+    //     }
+    // }
 }
