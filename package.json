@@ -1,7 +1,7 @@
 {
-  "name": "Cell",
-  "version": "1.0.0",
-  "description": "Style DOM elements that follow the Synergy naming convention using Sass",
+  "name": "@onenexus/cell",
+  "version": "1.0.0-beta.1",
+  "description": "Style Synergy modules/BEM DOM elements using Sass",
   "main": "dist/_synergy.scss",
   "author": "(Edmund Reed)[http://twitter.com/esr360] <esr360@live.com>",
   "homepage": "https://github.com/One-Nexus/Cell",
