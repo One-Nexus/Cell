@@ -15,7 +15,7 @@
     $content: (), 
     $sub-component: false, 
     $glue: $component-glue, 
-    $disable-cascade: false
+    $cascade: true
 ) {
     $this: &;
     $module-map: selector-to-map($this);
@@ -36,7 +36,7 @@
         @each $component in $components {
             $selector: '.#{$namespace}#{$glue}#{$component}, [class*="#{$namespace}#{$glue}#{$component}-"]';
 
-            @if ($disable-cascade) {
+            @if not $cascade {
                 $selector: '> #{$selector}';
             }
 
