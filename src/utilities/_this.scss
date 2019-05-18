@@ -5,7 +5,16 @@
 ///
 /// @param {arglist} $options
 @function this($options...) {
-    $value: option($smart-config, $options...);
+    @if (variable-exists('smart-config')) {
+        $value: option($smart-config, $options...);
+    } 
+    @else if (variable-exists('config')) {
+        $value: option($config, $options...);
+    }
+    @else {
+        @warn 'no config can be found for #{$module}'
+    }
+
     $debug: true;
 
     @if (variable-exists('sass-config-parser') and $sass-config-parser) {

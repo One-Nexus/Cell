@@ -2042,7 +2042,6 @@ $css-properties: (
 ///         }
 ///     }
 @mixin component($components: null, $content: (), $sub-component: false, $glue: $component-glue) {
-
     $this: &;
     $module-map: selector-to-map($this);
     $selectors: '[class*="#{$module}#{$glue}"]';
