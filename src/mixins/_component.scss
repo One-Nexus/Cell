@@ -10,7 +10,13 @@
 ///             ...
 ///         }
 ///     }
-@mixin component($components: null, $content: (), $sub-component: false, $glue: $component-glue) {
+@mixin component(
+    $components: null, 
+    $content: (), 
+    $sub-component: false, 
+    $glue: $component-glue, 
+    $disable-cascade: false
+) {
     $this: &;
     $module-map: selector-to-map($this);
     $selectors: '[class*="#{$module}#{$glue}"]';
@@ -29,6 +35,11 @@
 
         @each $component in $components {
             $selector: '.#{$namespace}#{$glue}#{$component}, [class*="#{$namespace}#{$glue}#{$component}-"]';
+
+            @if ($disable-cascade) {
+                $selector: '> #{$selector}';
+            }
+
             $selectors: join($selectors, $selector, comma);
         }
     }
