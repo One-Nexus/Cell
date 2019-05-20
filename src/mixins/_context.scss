@@ -9,7 +9,7 @@
     $selectors: ();
     @each $item in $context {
         $selectors: join($selectors, '.#{$module}', comma);
-        $selectors: join($selectors, '[class*="#{$module}#{$modifier-glue}"]', comma);
+        $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
     }
     @if $context == 'parent-hovered' {
         @at-root {

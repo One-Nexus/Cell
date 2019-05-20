@@ -10,7 +10,7 @@
     $modifier: '';
 
     // Find out where the first modifier starts
-    $modifier-index: str-index($selector, '"#{$modifier-glue}');
+    $modifier-index: str-index($selector, '"#{$modifierGlue}');
 
     @if $modifier-index {
         // Strip the first part of the selector up until the first modifier

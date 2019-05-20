@@ -24,8 +24,8 @@
         $string: strip-glue($string, $component-glue);
     }
 
-    @else if str-index($string, $modifier-glue) == 1 {
-        $string: strip-glue($string, $modifier-glue);
+    @else if str-index($string, $modifierGlue) == 1 {
+        $string: strip-glue($string, $modifierGlue);
     }
 
     $string: str-replace($string, "'", '');

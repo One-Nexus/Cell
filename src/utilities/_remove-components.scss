@@ -21,7 +21,7 @@
         // Find out where the component potentially ends
         $component-end-1: str-index($component, ' ');
         // Find out where the component potentially ends
-        $component-end-2: str-index($component, '#{$modifier-glue}"]');
+        $component-end-2: str-index($component, '#{$modifierGlue}"]');
         // Find out where the component actually ends
         $component-end: '';
         @if $component-end-1 and $component-end-2 {

@@ -13,7 +13,7 @@
 ///             ...
 ///         }
 ///     }
-@mixin modifier($modifiers, $special: null, $glue: $modifier-glue) {
+@mixin modifier($modifiers, $special: null, $glue: $modifierGlue) {
 
     $selectors: &;
 

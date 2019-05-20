@@ -50,7 +50,7 @@
         // spoof the selector into a list
         $selector: selector-parse(str-replace(inspect($selector), ' ', ', '));
 
-        $is-modifier: str-index(inspect(nth($selector, length($selector))), '[class*="#{$modifier-glue}');
+        $is-modifier: str-index(inspect(nth($selector, length($selector))), '[class*="#{$modifierGlue}');
         $is-pseudo-state: str-index(inspect(nth($selector, length($selector))), ':');
 
         // if the last item isn't a modifier or pseudo state, remove it

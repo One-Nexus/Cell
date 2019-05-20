@@ -43,7 +43,7 @@
 
     @each $module in $modules {
         $selectors: join($selectors, '.#{$module}', comma);
-        $selectors: join($selectors, '[class*="#{$module}#{$modifier-glue}"]', comma);
+        $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
 
         // @TODO
         // @if $type == 'data' {

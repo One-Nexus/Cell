@@ -2,7 +2,7 @@
 ///
 /// @param {string} $namespace
 @function get-module-name($namespace) {
-    $modifier-index: str-index($namespace, $modifier-glue);
+    $modifier-index: str-index($namespace, $modifierGlue);
     $component-index: str-index($namespace, $component-glue);
 
     $slice-index: if($component-index, $component-index, $modifier-index);

@@ -5,13 +5,13 @@
     // convert selector into a string
     $selector: inspect($selector);
 
-    @if $selector == '.#{$module}, [class*="#{$module}#{$modifier-glue}"]' {
+    @if $selector == '.#{$module}, [class*="#{$module}#{$modifierGlue}"]' {
         @return true;
     }
     @if $selector == '.#{$module}' {
         @return true;
     }
-    @if $selector == '[class*="#{$module}#{$modifier-glue}"]' {
+    @if $selector == '[class*="#{$module}#{$modifierGlue}"]' {
         @return true;
     }
 

@@ -9,7 +9,7 @@
     @each $property, $value in $map {
         @if type-of($property) == 'string' {
             // $property defines new Modifier
-            @if str-index($property, 'modifier(') == 1 or str-index($property, $modifier-glue) == 1 {
+            @if str-index($property, 'modifier(') == 1 or str-index($property, $modifierGlue) == 1 {
                 @include modifier(get-param($property)) {
                     @include get-css-from-map($value);
                 }

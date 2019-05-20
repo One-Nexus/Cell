@@ -2,7 +2,7 @@
 $module-namespace: null !default;
 
 // Set the glue to chain modifiers to modules
-$modifier-glue: '-' !default;
+$modifierGlue: '-' !default;
 
 // Set the glue to chain components to modules
 $component-glue: '_' !default;
