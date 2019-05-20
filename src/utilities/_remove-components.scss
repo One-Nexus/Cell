@@ -12,7 +12,7 @@
     $component: '';
 
     // Find out where the first component starts
-    $component-index: str-index($selector, '#{$component-glue}');
+    $component-index: str-index($selector, '#{$componentGlue}');
 
     @if $component-index {
         // Strip the first part of the selector up until the first component

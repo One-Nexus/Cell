@@ -16,7 +16,7 @@
             }
 
             // $property defines new Component
-            @else if str-index($property, 'component(') == 1 or str-index($property, $component-glue) == 1 {
+            @else if str-index($property, 'component(') == 1 or str-index($property, $componentGlue) == 1 {
                 @include component(get-param($property)) {
                     @include get-css-from-map($value);
                 }

@@ -5,7 +5,7 @@ $module-namespace: null !default;
 $modifierGlue: '-' !default;
 
 // Set the glue to chain components to modules
-$component-glue: '_' !default;
+$componentGlue: '_' !default;
 
 // Extend each module option as a modifier by default?
 $extend-options: true !default;

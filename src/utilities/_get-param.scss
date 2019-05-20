@@ -20,8 +20,8 @@
         $string: str-replace($string, ')', '');
     }
 
-    @else if str-index($string, $component-glue) == 1 {
-        $string: strip-glue($string, $component-glue);
+    @else if str-index($string, $componentGlue) == 1 {
+        $string: strip-glue($string, $componentGlue);
     }
 
     @else if str-index($string, $modifierGlue) == 1 {

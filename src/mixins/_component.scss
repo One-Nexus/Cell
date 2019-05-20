@@ -14,7 +14,7 @@
     $components: null, 
     $content: (), 
     $sub-component: false, 
-    $glue: $component-glue, 
+    $glue: $componentGlue, 
     $cascade: true
 ) {
     $this: &;
@@ -133,7 +133,7 @@
 /// @param {string|list} $components
 /// @param {map} $content
 /// @param {string} $glue
-@mixin sub-component($components: null, $content: (), $glue: $component-glue) {
+@mixin sub-component($components: null, $content: (), $glue: $componentGlue) {
     @include component($components, $content, true, $glue) {
         @content;
     }
