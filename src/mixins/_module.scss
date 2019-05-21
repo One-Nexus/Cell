@@ -20,8 +20,8 @@
         $modules: if(variable-exists('config'), (map-get($config, 'name')), '');
     }
 
-    @if ($module-namespace) {
-        $modules: $module-namespace + $modules;
+    @if ($moduleNamespace) {
+        $modules: $moduleNamespace + $modules;
     }
 
     // disable any output

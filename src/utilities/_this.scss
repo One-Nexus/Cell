@@ -17,8 +17,8 @@
 
     $debug: true;
 
-    @if (variable-exists('sass-config-parser') and $sass-config-parser) {
-        $value: call(get-function($sass-config-parser), $value);
+    @if (variable-exists('sassConfigParser') and $sassConfigParser) {
+        $value: call(get-function($sassConfigParser), $value);
     }
 
     $this: &;

@@ -348,7 +348,7 @@
     @return $value / ($value * 0 + 1);
 }
 // Prepend all selectors with a namespace
-$module-namespace: null !default;
+$moduleNamespace: null !default;
 
 // Set the glue to chain modifiers to modules
 $modifier-glue: '-' !default;
@@ -357,10 +357,10 @@ $modifier-glue: '-' !default;
 $component-glue: '_' !default;
 
 // Extend each module option as a modifier by default?
-$extend-options: true !default;
+$extendOptions: true !default;
 
 // Custom parser to use for configuration
-$sass-config-parser: null !default;
+$sassConfigParser: null !default;
 
 // The variable to hold a single module (do not edit)
 $module: null !default;
@@ -388,10 +388,10 @@ $module: null !default;
 /// @param {map} $map-old - The map which holds default configuration
 /// @param {map} $map-new - The map which holds custom values
 /// @param {string} $parser - Custom parser to use for configuration
-@function config($map-old: (), $map-new: (), $parser: $sass-config-parser) {
+@function config($map-old: (), $map-new: (), $parser: $sassConfigParser) {
 
     $map-old: map-merge((
-        'extend-options' : $extend-options
+        'extendOptions' : $extendOptions
     ), $map-old);
 
     // Merge default and custom options
@@ -1855,8 +1855,8 @@ $css-properties: (
     $value: option($smart-config, $options...);
     $debug: true;
 
-    @if (variable-exists('sass-config-parser') and $sass-config-parser) {
-        $value: call(get-function($sass-config-parser), $value);
+    @if (variable-exists('sassConfigParser') and $sassConfigParser) {
+        $value: call(get-function($sassConfigParser), $value);
     }
 
     $this: &;
@@ -1927,8 +1927,8 @@ $css-properties: (
         $modules: if(variable-exists('config'), (map-get($config, 'name')), '');
     }
 
-    @if ($module-namespace) {
-        $modules: $module-namespace + $modules;
+    @if ($moduleNamespace) {
+        $modules: $moduleNamespace + $modules;
     }
 
     // disable any output
@@ -2263,7 +2263,7 @@ $css-properties: (
 ///     <div class="button-primary">...</div>
 @mixin extend($modifiers: null, $parent: null, $core: false) {
 
-    $namespaced-parent: if($module-namespace and $parent, $module-namespace + $parent, $parent);
+    $namespaced-parent: if($moduleNamespace and $parent, $moduleNamespace + $parent, $parent);
 
     @if $core or not $modifiers {
         @extend .#{$namespaced-parent};
@@ -2369,7 +2369,7 @@ $css-properties: (
 
     // Create a modifier for the option if it is not enabled
     // by default
-    @if $extend-options and not value-enabled($value) {
+    @if $extendOptions and not value-enabled($value) {
         @include modifier($option) {
             @content;
         }

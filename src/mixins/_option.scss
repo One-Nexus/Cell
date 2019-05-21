@@ -46,7 +46,7 @@
 
     // Create a modifier for the option if it is not enabled
     // by default
-    @if $extend-options and not value-enabled($value) {
+    @if $extendOptions and not value-enabled($value) {
         @include modifier($option) {
             @content;
         }

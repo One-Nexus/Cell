@@ -1,5 +1,5 @@
 // Prepend all selectors with a namespace
-$module-namespace: null !default;
+$moduleNamespace: null !default;
 
 // Set the glue to chain modifiers to modules
 $modifierGlue: '-' !default;
@@ -8,10 +8,10 @@ $modifierGlue: '-' !default;
 $componentGlue: '_' !default;
 
 // Extend each module option as a modifier by default?
-$extend-options: true !default;
+$extendOptions: true !default;
 
 // Custom parser to use for configuration
-$sass-config-parser: null !default;
+$sassConfigParser: null !default;
 
 // The variable to hold a single module (do not edit)
 $module: null !default;

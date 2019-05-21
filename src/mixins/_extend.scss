@@ -25,7 +25,7 @@
 ///     <div class="button-primary">...</div>
 @mixin extend($modifiers: null, $parent: null, $core: false) {
 
-    $namespaced-parent: if($module-namespace and $parent, $module-namespace + $parent, $parent);
+    $namespaced-parent: if($moduleNamespace and $parent, $moduleNamespace + $parent, $parent);
 
     @if $core or not $modifiers {
         @extend .#{$namespaced-parent};
