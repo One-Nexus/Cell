@@ -11,10 +11,10 @@
 ///         }
 ///     }
 @mixin component(
-    $components: null, 
-    $content: (), 
-    $sub-component: false, 
-    $glue: $componentGlue, 
+    $components: null,
+    $content: (),
+    $sub-component: false,
+    $glue: $componentGlue,
     $cascade: true
 ) {
     $this: &;

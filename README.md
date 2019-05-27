@@ -5,7 +5,7 @@
 <img height="80px" src="http://onenexus.io/cell/images/cell-logo.png" />
 
 * [Overview](#overview)
-* [Installation & Setup](installation--setup)
+* [Installation & Setup](#installation--setup)
 * [Creating a Module](https://github.com/One-Nexus/Cell/wiki/Creating-a-Module)
 * [Mixins](#mixins)
 * [Utility Functions](#utility-functions)
@@ -21,7 +21,8 @@ Cell is used for styling DOM elements that follow the [Synergy naming convention
 * Cell is used for creating modular, configurable and scalable Sass components
 * Works with any Sass implementation (Ruby, Dart, Node...)
 * Requires Sass 3.4+ (4.9+ if using Node-Sass)
-* To import configuration as JSON, Cell requires [sass-json-importer](https://github.com/One-Nexus/sass-json-importer) (for Node Sass) or [sass-json-vars](https://github.com/vigetlabs/sass-json-vars) (for Ruby Sass)
+* Import configuration into your Sass/Cell components as JavaScript/JSON
+* Built for the [Synergy framework](https://github.com/One-Nexus/Synergy)
 
 ### Example
 
@@ -136,7 +137,7 @@ If you are using Node Sass, you can import the library anywhere using:
 
 > Using BEM? Checkout the [Working With BEM](https://github.com/One-Nexus/Cell/wiki/Working-With-BEM) page
 
-> See the [JSON Configuration](https://github.com/One-Nexus/Cell/wiki/JSON-Configuration) page for instructions on how to use JSON configuration
+> See the [JavaScript Configuration](https://github.com/One-Nexus/Cell/wiki/JavaScript-Configuration) page for instructions on how to use JavaScript/JSON configuration
 
 <img src="http://www.onenexus.io/cell/images/TrunksvsCell.gif" />
 
