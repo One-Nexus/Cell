@@ -1549,7 +1549,6 @@ $css-properties: (
 ///
 /// @param {map} $map - The map from which to get CSS
 @mixin get-css-from-map($map) {
-    // @debug $map;
     @each $property, $value in $map {
         @if type-of($property) == 'string' {
             // $property defines new Modifier
@@ -1595,6 +1594,17 @@ $css-properties: (
             }
         }
     }
+}
+/// Get the name of a module from a namespace
+///
+/// @param {string} $namespace
+@function get-module-name($namespace) {
+    $modifier-index: str-index($namespace, $modifierGlue);
+    $component-index: str-index($namespace, $componentGlue);
+
+    $slice-index: if($component-index, $component-index, $modifier-index);
+
+    @return if($slice-index, str-slice($namespace, 0, $slice-index - 1), $namespace);
 }
 /// Get parmater from config string
 ///
@@ -1753,6 +1763,17 @@ $css-properties: (
 
     @return $selector;
 }
+/// Remove junk characters from a selector string
+///
+/// @param {string} $query
+@function remove-junk($query) {
+    $query: str-replace($query, '.', '');
+    $query: str-replace($query, '[class*="#{$modifierGlue}', '');
+    $query: str-replace($query, '[class*="', '');
+    $query: str-replace($query, '"]', '');
+
+    @return $query;
+}
 /// Remove modifiers from a selector
 ///
 /// @author [@esr360](http://twitter.com/esr360)
@@ -1803,6 +1824,34 @@ $css-properties: (
 
     @return false;
 }
+/// Convert a selector into a map of modules, components and modifiers
+///
+/// @param {string} $selector
+@function selector-to-map($selector) {
+
+    $module-map: (
+        'module'   : null,
+        'component': null,
+        'modifiers': null
+    );
+
+    // Prepare selector for defragmentation
+    $cleaned-selector: inspect(nth($selector, length($selector)));
+    $cleaned-selector: selector-parse(str-replace($cleaned-selector, ' ', ', '));
+    $cleaned-selector: nth($cleaned-selector, length($cleaned-selector));
+    $cleaned-selector: remove-junk(inspect($cleaned-selector));
+
+    // Get and set module name
+    $module-map: map-set($module-map, 'module', get-module-name($cleaned-selector));
+
+    // Get and set component name @TODO
+    // $component-name: get-component($cleaned-selector);
+
+    // Get and set modifiers @TODO
+    // $modifiers: get-modifiers($cleaned-selector);
+
+    @return $module-map;
+}
 /// Output a selector for a module with specified component/modifier
 ///
 /// @access public
@@ -1844,6 +1893,15 @@ $css-properties: (
     $clean-string: str-replace($clean-string, $placeholder + $glue, '');
 
     @return $clean-string;
+}
+/// Get a value from $theme if it exists
+///
+/// @author [@esr360](http://twitter.com/esr360)
+/// @access public
+///
+/// @param {arglist} $args
+@function theme($args...) {
+    @return map-get-deep($theme, $args...);
 }
 /// Get a value from the current module's configuration
 ///

@@ -5,7 +5,6 @@
 ///
 /// @param {map} $map - The map from which to get CSS
 @mixin get-css-from-map($map) {
-    // @debug $map;
     @each $property, $value in $map {
         @if type-of($property) == 'string' {
             // $property defines new Modifier

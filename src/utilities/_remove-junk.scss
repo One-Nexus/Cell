@@ -5,7 +5,6 @@
     $query: str-replace($query, '.', '');
     $query: str-replace($query, '[class*="#{$modifierGlue}', '');
     $query: str-replace($query, '[class*="', '');
-    $query: str-replace($query, '#{$modifierGlue}"]', '');
     $query: str-replace($query, '"]', '');
 
     @return $query;
