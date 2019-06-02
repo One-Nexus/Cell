@@ -165,3 +165,12 @@ Cell comes with the following mixins to help create and structure your modules i
 * [This](https://github.com/One-Nexus/Cell/wiki/Utility-Functions#this)
 
 <img src="http://www.onenexus.io/cell/images/freizaandcell.gif" />
+
+---
+
+<a href="https://twitter.com/ESR360">
+    <img src="http://edmundreed.com/assets/images/twitter.gif?v=1" width="250px" />
+</a>
+<a href="https://github.com/ESR360">
+    <img src="http://edmundreed.com/assets/images/github.gif?v=1" width="250px" />
+</a>
