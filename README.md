@@ -1,7 +1,7 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/One-Nexus/Cell/blob/master/LICENSE)
 [![Build Status](https://travis-ci.com/One-Nexus/Cell.svg?branch=master)](https://travis-ci.com/One-Nexus/Cell)
 [![npm version](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=1.0.0-beta.1&x2=0)]((https://www.npmjs.com/package/@onenexus/cell))
-[![npm version](https://img.shields.io/npm/dm/@onenexus/cell.svg)](https://www.npmjs.com/package/@onenexus/cell)
+[![npm downloads](https://img.shields.io/npm/dm/@onenexus/cell.svg)](https://www.npmjs.com/package/@onenexus/cell)
 
 > Style Synergy modules/BEM DOM elements using Sass
 
