@@ -74,58 +74,16 @@
 
     @if ($parents == '()') {
         @at-root #{$selectors} {
-            @include render-component($this, $components, $content) {
-                @content;
-            }
+            @content;
         }
     }
     @else {
         @at-root #{$parents} {
             #{$selectors} {
-                @include render-component($this, $components, $content) {
-                    @content;
-                }
+                @content;
             }
         }
     }
-
-    // @TODO - this works with node-sass 4.7.2 but not 4.9.0
-    //
-    // @at-root #{if($parents == '()', $selectors, $parents)} {
-    //     #{if($parents == '()', &, $selectors)} {
-    //         @content;
-
-    //         @if selector-is-root-module($this) {
-    //             @each $component in $components {
-    //                 $component: if(map-get($config, $component), map-get($config, $component), ());
-    //                 $content: merge-css-maps($content, $component);
-    //             }
-    //         }
-
-    //         @include get-css-from-map($content);
-    //     }
-    // }
-}
-
-/// Render a component's content
-///
-/// @param {selector} $target
-/// @param {list} $components
-/// @param {map} $content
-@mixin render-component($target, $components, $content, $config: if(variable-exists('config'), $config, ())) {
-    @content;
-
-    @if selector-is-root-module($target) {
-        @each $component in $components {
-            // this only gets components that are first level in the config;
-            // @TODO find way to recurse so no need to use `component(foo)`
-            // on lower levels (allow for just `foo`)
-            $component-styles: if(map-get($config, $component), map-get($config, $component), ());
-            $content: merge-css-maps($content, $component-styles);
-        }
-    }
-
-    @include get-css-from-map($content);
 }
 
 /// Alis for `component` mixin with $sub-component: true

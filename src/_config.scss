@@ -2,10 +2,10 @@
 $moduleNamespace: null !default;
 
 // Set the glue to chain modifiers to modules
-$modifierGlue: '-' !default;
+$modifierGlue: '--' !default;
 
 // Set the glue to chain components to modules
-$componentGlue: '_' !default;
+$componentGlue: '__' !default;
 
 // Extend each module option as a modifier by default?
 $extendOptions: true !default;

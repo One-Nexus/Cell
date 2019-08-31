@@ -20,6 +20,10 @@
         $string: str-replace($string, ')', '');
     }
 
+    @else if str-index($string, 'is-') == 1 {
+        $string: str-replace($string, 'is-', '');
+    }
+
     @else if str-index($string, $componentGlue) == 1 {
         $string: strip-glue($string, $componentGlue);
     }

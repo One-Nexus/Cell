@@ -4,11 +4,18 @@
 /// @access public
 ///
 /// @param {map} $map - The map from which to get CSS
-@mixin get-css-from-map($map) {
+@mixin get-css-from-map($map, $sub-component: false) {
     @each $property, $value in $map {
         @if type-of($property) == 'string' {
             // $property defines new Modifier
             @if str-index($property, 'modifier(') == 1 or str-index($property, $modifierGlue) == 1 {
+                @include modifier(get-param($property)) {
+                    @include get-css-from-map($value);
+                }
+            }
+
+            // $property defines new Modifier
+            @if str-index($property, 'is-') == 1 {
                 @include modifier(get-param($property)) {
                     @include get-css-from-map($value);
                 }
@@ -40,6 +47,12 @@
                 @include modifier('active') {
                     @include get-css-from-map($value);
                 }
+            }
+
+            @else if type-of($value) == 'map' {
+              @include component($property, $sub-component: $sub-component) {
+                  @include get-css-from-map($value, $sub-component: true);
+              }
             }
 
             // $property is a valid CSS property
