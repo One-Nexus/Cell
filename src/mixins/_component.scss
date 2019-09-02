@@ -5,85 +5,85 @@
 /// @param {string|list} $components - The component or components to be used
 ///
 /// @example
-///     @include module('header') {
-///         @include component('wrapper') {
-///             ...
-///         }
+///   @include module('header') {
+///     @include component('wrapper') {
+///         ...
 ///     }
+///   }
 @mixin component(
-    $components: null,
-    $content: (),
-    $sub-component: false,
-    $glue: $componentGlue,
-    $cascade: true
+  $components: null,
+  $content: (),
+  $sub-component: false,
+  $glue: $componentGlue,
+  $cascade: true
 ) {
-    $this: &;
-    $module-map: selector-to-map($this);
-    $selectors: '[class*="#{$module}#{$glue}"]';
-    $namespace: map-get($module-map, 'module');
+  $this: &;
+  $module-map: selector-to-map($this);
+  $selectors: '[class*="#{$module}#{$glue}"]';
+  $namespace: map-get($module-map, 'module');
 
-    @if str-index($namespace, '%') == 1 {
-        $namespace: $module;
+  @if str-index($namespace, '%') == 1 {
+    $namespace: $module;
+  }
+
+  @if $sub-component {
+    $namespace: nth(module-tree(&), length(module-tree(&)));
+  }
+
+  @if $components {
+    $selectors: ();
+
+    @each $component in $components {
+      $selector: '.#{$namespace}#{$glue}#{$component}, [class*="#{$namespace}#{$glue}#{$component}-"]';
+
+      @if not $cascade {
+        $selector: '> #{$selector}';
+      }
+
+      $selectors: join($selectors, $selector, comma);
+    }
+  }
+
+  $parents: ();
+
+  @each $selector in & {
+    // spoof the selector into a list
+    $selector: selector-parse(str-replace(inspect($selector), ' ', ', '));
+
+    $is-modifier: str-index(inspect(nth($selector, length($selector))), '[class*="#{$modifierGlue}');
+    $is-pseudo-state: str-index(inspect(nth($selector, length($selector))), ':');
+
+    // if the last item isn't a modifier or pseudo state, remove it
+    @if not ($is-modifier or $is-pseudo-state) {
+      $selector: list-remove($selector, nth($selector, length($selector)));
     }
 
-    @if $sub-component {
-        $namespace: nth(module-tree(&), length(module-tree(&)));
+    @if length($selector) == 1 {
+      $selector: nth($selector, 1);
     }
 
-    @if $components {
-        $selectors: ();
+    // Re-build the parent selector
+    $parents: append($parents, str-replace(inspect($selector), ', ', ' '), comma);
+  }
 
-        @each $component in $components {
-            $selector: '.#{$namespace}#{$glue}#{$component}, [class*="#{$namespace}#{$glue}#{$component}-"]';
+  $parents: list-remove-duplicates($parents);
 
-            @if not $cascade {
-                $selector: '> #{$selector}';
-            }
+  @if length($parents) == 1 {
+    $parents: nth($parents, 1);
+  }
 
-            $selectors: join($selectors, $selector, comma);
-        }
+  @if ($parents == '()') {
+    @at-root #{$selectors} {
+      @content;
     }
-
-    $parents: ();
-
-    @each $selector in & {
-        // spoof the selector into a list
-        $selector: selector-parse(str-replace(inspect($selector), ' ', ', '));
-
-        $is-modifier: str-index(inspect(nth($selector, length($selector))), '[class*="#{$modifierGlue}');
-        $is-pseudo-state: str-index(inspect(nth($selector, length($selector))), ':');
-
-        // if the last item isn't a modifier or pseudo state, remove it
-        @if not ($is-modifier or $is-pseudo-state) {
-            $selector: list-remove($selector, nth($selector, length($selector)));
-        }
-
-        @if length($selector) == 1 {
-            $selector: nth($selector, 1);
-        }
-
-        // Re-build the parent selector
-        $parents: append($parents, str-replace(inspect($selector), ', ', ' '), comma);
+  }
+  @else {
+    @at-root #{$parents} {
+      #{$selectors} {
+        @content;
+      }
     }
-
-    $parents: list-remove-duplicates($parents);
-
-    @if length($parents) == 1 {
-        $parents: nth($parents, 1);
-    }
-
-    @if ($parents == '()') {
-        @at-root #{$selectors} {
-            @content;
-        }
-    }
-    @else {
-        @at-root #{$parents} {
-            #{$selectors} {
-                @content;
-            }
-        }
-    }
+  }
 }
 
 /// Alis for `component` mixin with $sub-component: true
@@ -92,19 +92,17 @@
 /// @param {map} $content
 /// @param {string} $glue
 @mixin sub-component($components: null, $content: (), $glue: $componentGlue) {
-    @include component($components, $content, true, $glue) {
-        @content;
-    }
+  @include component($components, $content, true, $glue) {
+    @content;
+  }
 }
 
 /// Alias for component() mixin
 ///
 /// @author [@esr360](http://twitter.com/esr360)
 /// @access public
-///
-/// @param {string|list} $components - The component(s) you wish to create
-@mixin components($components) {
-    @include component($components) {
-        @content;
-    }
+@mixin components($args...) {
+  @include component($args...) {
+    @content;
+  }
 }

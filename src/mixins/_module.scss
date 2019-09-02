@@ -5,68 +5,63 @@
 /// @param {string|list} $modules - The module(s) you wish to create
 ///
 /// @example
-///     @include module('header') {
-///         ...
-///     }
+///   @include module('header') {
+///     ...
+///   }
 ///
-///     <div class="header">...</div>
+///   <div class="header">...</div>
 @mixin module(
-    $modules: if(variable-exists('config'), (map-get($config, 'name')), ''),
-    $content: ()
+  $modules: if(variable-exists('config'), (map-get($config, 'name')), ''),
+  $content: ()
 ) {
-    $config: () !default;
+  $config: () !default;
 
-    @if type-of($modules) == 'map' {
-        $modules: if(variable-exists('config'), (map-get($config, 'name')), '');
+  @if type-of($modules) == 'map' {
+    $modules: if(variable-exists('config'), (map-get($config, 'name')), '');
+  }
+
+  @if ($moduleNamespace) {
+    $modules: $moduleNamespace + $modules;
+  }
+
+  // disable any output
+  $disable-output: if(variable-exists('disable-output'), $disable-output, false);
+
+  @if variable-exists('config') and map-has-key($config, 'disable-output') {
+    $disable-output: map-get($config, 'disable-output');
+  }
+
+  // @TODO this needs to identify if nested within itself, not in general
+  $nested: &;
+
+  @if not $nested {
+    // We are creating a root module, so create a global variable
+    $module: $modules !global;
+  }
+
+  $selectors: ();
+
+  @each $module in $modules {
+    $selectors: join($selectors, '.#{$module}', comma);
+    $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
+  }
+
+  $targetExists: variable-exists('config') and map-has-key($config, 'target');
+  // @TODO tidy up how $target is used here and in $modifier - also probably
+  // won't work for component()
+  $target: if($targetExists, ('module': $module, 'target': map-get($config, 'target')), false) !global;
+
+  @if not $disable-output {
+    #{$selectors} {
+      @if not $nested {
+        @include module-content($modules, $config, $target);
+      }
+
+      @include get-css-from-map($content);
+
+      @content;
     }
-
-    @if ($moduleNamespace) {
-        $modules: $moduleNamespace + $modules;
-    }
-
-    // disable any output
-    $disable-output: if(variable-exists('disable-output'), $disable-output, false);
-
-    @if variable-exists('config') and map-has-key($config, 'disable-output') {
-        $disable-output: map-get($config, 'disable-output');
-    }
-
-    // @TODO this needs to identify if nested within itself, not in general
-    $nested: &;
-
-    @if not $nested {
-        // We are creating a root module, so create a global variable
-        $module: $modules !global;
-    }
-
-    $selectors: ();
-
-    @each $module in $modules {
-        $selectors: join($selectors, '.#{$module}', comma);
-        $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
-
-        // @TODO
-        // @if $type == 'data' {
-        //     $selectors: join($selectors, '[data-#{$module}]', comma);
-        // }
-    }
-
-    $targetExists: variable-exists('config') and map-has-key($config, 'target');
-    // @TODO tidy up how $target is used here and in $modifier - also probably
-    // won't work for component()
-    $target: if($targetExists, ('module': $module, 'target': map-get($config, 'target')), false) !global;
-
-    @if not $disable-output {
-        #{$selectors} {
-            @if not $nested {
-                @include module-content($modules, $config, $target);
-            }
-
-            @include get-css-from-map($content);
-
-            @content;
-        }
-    }
+  }
 }
 
 /// Render a module's content
@@ -75,50 +70,50 @@
 /// @param {map} $config
 /// @param {*} $target
 @mixin module-content($module, $config, $target) {
-    @include extend-modifiers;
-    @include combine-modifiers;
+  @include extend-modifiers;
+  @include combine-modifiers;
 
-    @if variable-exists('config') {
-        @if $module == map-get($config, 'name') or $target {
-            @if type-of($target) == 'map' and map-get($target, 'module') == $module {
-                #{map-get($target, 'target')} {
-                    @include get-css-from-map($config);
-                }
-            }
-            @else {
-                @include get-css-from-map($config);
-            }
+  @if variable-exists('config') {
+    @if $module == map-get($config, 'name') or $target {
+      @if type-of($target) == 'map' and map-get($target, 'module') == $module {
+        #{map-get($target, 'target')} {
+          @include get-css-from-map($config);
         }
+      }
+      @else {
+        @include get-css-from-map($config);
+      }
     }
+  }
 }
 
 /// Alias for module() mixin
 ///
 /// @param {string|list} $modules - The module(s) you wish to create
 @mixin modules($modules) {
-    @include module($modules) {
-        @content;
-    }
+  @include module($modules) {
+    @content;
+  }
 }
 
 /// Combine modifiers into a new, single modifier
 ///
 /// @param {map} $styles - The CSS styles to output
 @mixin combine-modifiers($combine: if(variable-exists('config'), (map-get($config, 'combine')), '()')) {
-    @if variable-exists('config') and $combine {
-        @each $new-modifier, $target-modifiers in $combine {
-            @include modifier($new-modifier) {
-                @include extend(($target-modifiers));
-            }
-        }
+  @if variable-exists('config') and $combine {
+    @each $new-modifier, $target-modifiers in $combine {
+      @include modifier($new-modifier) {
+        @include extend(($target-modifiers));
+      }
     }
+  }
 }
 
 /// Extend modifiers into the naked module
 ///
 /// @param {map} $styles - The CSS styles to output
 @mixin extend-modifiers($modifiers: if(variable-exists('config'), (map-get($config, 'modifiers')), '()')) {
-    @if variable-exists('config') and $modifiers {
-        @include extend(($modifiers));
-    }
+  @if variable-exists('config') and $modifiers {
+    @include extend(($modifiers));
+  }
 }

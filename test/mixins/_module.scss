@@ -13,7 +13,7 @@
             $result: #{&};
         }
         @include assert-equal(
-            $result, '.foo, [class*="foo-"]'
+            $result, '.foo, [class*="foo--"]'
         );
     }
 
@@ -22,7 +22,7 @@
             $result: #{&};
         }
         @include assert-equal(
-            $result, '.foo, [class*="foo-"], .bar, [class*="bar-"]'
+            $result, '.foo, [class*="foo--"], .bar, [class*="bar--"]'
         );
     }
 
@@ -33,7 +33,7 @@
             }
         }
         @include assert-equal(
-            $result, '.foo .bar, .foo [class*="bar-"], [class*="foo-"] .bar, [class*="foo-"] [class*="bar-"]'
+            $result, '.foo .bar, .foo [class*="bar--"], [class*="foo--"] .bar, [class*="foo--"] [class*="bar--"]'
         );
     }
 

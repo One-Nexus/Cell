@@ -5,21 +5,23 @@
 ///
 /// @param {string} $context - The context you wish to use
 @mixin context($context) {
-    $child-selectors: &;
-    $selectors: ();
-    @each $item in $context {
-        $selectors: join($selectors, '.#{$module}', comma);
-        $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
-    }
-    @if $context == 'parent-hovered' {
-        @at-root {
-            #{$selectors} {
-                &:hover {
-                    #{$child-selectors} {
-                        @content;
-                    }
-                }
-            }
+  $child-selectors: &;
+  $selectors: ();
+
+  @each $item in $context {
+    $selectors: join($selectors, '.#{$module}', comma);
+    $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
+  }
+
+  @if $context == 'module-hovered' {
+    @at-root {
+      #{$selectors} {
+        &:hover {
+          #{$child-selectors} {
+            @content;
+          }
         }
+      }
     }
+  }
 }

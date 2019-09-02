@@ -50,9 +50,9 @@
             }
 
             @else if type-of($value) == 'map' {
-              @include component($property, $sub-component: $sub-component) {
-                  @include get-css-from-map($value, $sub-component: true);
-              }
+                @include component($property, $sub-component: $sub-component) {
+                    @include get-css-from-map($value, $sub-component: true);
+                }
             }
 
             // $property is a valid CSS property

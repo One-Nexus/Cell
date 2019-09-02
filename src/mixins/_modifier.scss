@@ -8,59 +8,65 @@
 /// @param {bool} $glue ['-'] - Desired modifier separator/glue
 ///
 /// @example
-///     @include module('button') {
-///         @include modifier('large') {
-///             ...
-///         }
+///   @include module('button') {
+///     @include modifier('large') {
+///       ...
 ///     }
+///   }
 @mixin modifier($modifiers, $special: null, $glue: $modifierGlue) {
+  $selectors: &;
 
-    $selectors: &;
+  @if str-index(inspect(&), '.#{$module}') {
+    $selectors: ();
 
-    @if str-index(inspect(&), '.#{$module}') {
-        $selectors: ();
+    @for $i from 1 through length(&) {
+      @if $i % 2 == 0 {
+        $selectors: append($selectors, nth(&, $i), comma);
+      }
+    }
+  }
 
-        @for $i from 1 through length(&) {
-            @if $i % 2 == 0 {
-                $selectors: append($selectors, nth(&, $i), comma);
-            }
-        }
+  @at-root #{$selectors} {
+    $modifier-selectors: ();
+
+    @each $modifier in $modifiers {
+      @if $special == 'not' {
+        $modifier-selectors: join($modifier-selectors, '&:not([class*="#{$glue}#{$modifier}"])', comma);
+      }
+      @else {
+        $modifier-selectors: join($modifier-selectors, '&[class*="#{$glue}#{$modifier}"]', comma);
+      }
     }
 
-    @at-root #{$selectors} {
-        $modifier-selectors: ();
-
-        @each $modifier in $modifiers {
-            @if $special == 'not' {
-                $modifier-selectors: join($modifier-selectors, '&:not([class*="#{$glue}#{$modifier}"])', comma);
-            }
-            @else {
-                $modifier-selectors: join($modifier-selectors, '&[class*="#{$glue}#{$modifier}"]', comma);
-            }
+    @at-root #{$modifier-selectors} {
+      @if type-of($target) == 'map' and map-get($target, 'module') == $module {
+        #{map-get($target, 'target')} {
+          @content;
         }
-
-        @at-root #{$modifier-selectors} {
-            @if type-of($target) == 'map' and map-get($target, 'module') == $module {
-                #{map-get($target, 'target')} {
-                    @content;
-                }
-            }
-            @else {
-                @content;
-            }
-        }
+      }
+      @else {
+        @content;
+      }
     }
-
-} // modifier()
+  }
+}
 
 /// Alias for modifier() mixin
 ///
 /// @author [@esr360](http://twitter.com/esr360)
 /// @access public
+@mixin modifiers($args...) {
+  @include modifier($args...) {
+    @content;
+  }
+}
+
+/// Alias for modifier() mixin
 ///
-/// @param {string|list} $modifiers - The modifier(s) you wish to create
-@mixin modifiers($modifiers) {
-    @include modifier($modifiers) {
-        @content;
-    }
+/// @author [@esr360](http://twitter.com/esr360)
+/// @access public
+@mixin is($args...) {
+  @include modifier($args...) {
+    @content;
+  }
 }

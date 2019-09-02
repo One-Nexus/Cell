@@ -7,61 +7,50 @@
 /// @param $value - The value you wish to apply styles to
 ///
 /// @example
+///   @mixin header($custom: ()) {
+///     $header: config((
+///       side : false
+///     ), $custom);
 ///
-///     @mixin header($custom: ()) {
-///
-///         $header: config((
-///             side : false
-///         ), $custom);
-///
-///         @include module(header) {
-///             @include option(side) {
-///                 @include value(left) {
-///                     ...
-///                 }
-///             }
+///     @include module(header) {
+///       @include option(side) {
+///         @include value(left) {
+///             ...
 ///         }
-///
+///       }
 ///     }
+///   }
 ///
-///     @include header: ((
-///         side : left
-///     ));
+///   @include header: ((
+///     side : left
+///   ));
 @mixin value($value) {
+  // Create a unique, random placeholder to store styles
+  $placeholder : $value + random(9999);
+  $get-option: option($config, $option);
+  $target: if(type-of($get-option) == 'map', option($config, $option, 'enabled'), $get-option);
 
-    // Create a unique, random placeholder to store styles
-    $placeholder : $value + random(9999);
+  // Determine if the option's value is our value of interest
+  $enabled: if($target == $value, true, false);
 
-    $get-option: option($config, $option);
-
-    $target: if(type-of($get-option) == 'map', option($config, $option, 'enabled'), $get-option);
-
-    // Determine if the option's value is our value of interest
-    $enabled: if($target == $value, true, false);
-
-    @at-root {
-
-        // Store the styles in the placeholder
-        %#{$placeholder} {
-            @content;
-        }
-
-        @include module($module) {
-
-            // Output the styles if the option is enabled
-            @if ($enabled) {
-                @extend %#{$placeholder};
-            }
-
-            // Create a modifier for the option
-            @include modifier($option) {
-                @include modifier($value) {
-                    @extend %#{$placeholder};
-                }
-            }
-
-        }
-
+  @at-root {
+    // Store the styles in the placeholder
+    %#{$placeholder} {
+      @content;
     }
 
+    @include module($module) {
+      // Output the styles if the option is enabled
+      @if ($enabled) {
+        @extend %#{$placeholder};
+      }
+
+      // Create a modifier for the option
+      @include modifier($option) {
+        @include modifier($value) {
+          @extend %#{$placeholder};
+        }
+      }
+    }
+  }
 }

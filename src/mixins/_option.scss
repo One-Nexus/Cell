@@ -6,50 +6,46 @@
 /// @param {string} $option - The option which you wish to test against
 ///
 /// @example
-///     @mixin billboard($custom: ()) {
+///   @mixin billboard($custom: ()) {
+///     $billboard: config((
+///       fullscreen : false
+///     ), $custom);
 ///
-///         $billboard: config((
-///             fullscreen : false
-///         ), $custom);
-///
-///         @include module('billboard') {
-///             @include option('fullscreen') {
-///                 ...
-///             }
-///         }
-///
+///     @include module('billboard') {
+///       @include option('fullscreen') {
+///         ...
+///       }
 ///     }
+///   }
 ///
-///     @include billboard: ((
-///         fullscreen : true
-///     ));
+///   @include billboard: ((
+///     fullscreen : true
+///   ));
 @mixin option($option-path...) {
+  $value  : map-get-deep($config, $option-path...);
+  $option : nth($option-path, length($option-path)) !global;
 
-    $value  : map-get-deep($config, $option-path...);
-    $option : nth($option-path, length($option-path)) !global;
+  // Create a unique, random placeholder to store styles
+  $placeholder : $option + random(9999);
 
-    // Create a unique, random placeholder to store styles
-    $placeholder : $option + random(9999);
-
-    // Store the styles in the placeholder
-    @at-root %#{$placeholder} {
-        @if type-of(this($option)) == 'map' and not this($option, 'disable-css') {
-            @include get-styles(this($option));
-        }
-        @content;
+  // Store the styles in the placeholder
+  @at-root %#{$placeholder} {
+    @if type-of(this($option)) == 'map' and not this($option, 'disable-css') {
+      @include get-styles(this($option));
     }
+    @content;
+  }
 
-    // Output the styles if the option is enabled
-    @if value-enabled($value) {
-        @content;
+  // Output the styles if the option is enabled
+  @if value-enabled($value) {
+    @content;
+  }
+
+  // Create a modifier for the option if it is not enabled
+  // by default
+  @if $extendOptions and not value-enabled($value) {
+    @include modifier($option) {
+      @content;
     }
-
-    // Create a modifier for the option if it is not enabled
-    // by default
-    @if $extendOptions and not value-enabled($value) {
-        @include modifier($option) {
-            @content;
-        }
-    }
-
+  }
 }

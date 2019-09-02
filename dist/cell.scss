@@ -351,10 +351,10 @@
 $moduleNamespace: null !default;
 
 // Set the glue to chain modifiers to modules
-$modifierGlue: '-' !default;
+$modifierGlue: '--' !default;
 
 // Set the glue to chain components to modules
-$componentGlue: '_' !default;
+$componentGlue: '__' !default;
 
 // Extend each module option as a modifier by default?
 $extendOptions: true !default;
@@ -1548,11 +1548,18 @@ $css-properties: (
 /// @access public
 ///
 /// @param {map} $map - The map from which to get CSS
-@mixin get-css-from-map($map) {
+@mixin get-css-from-map($map, $sub-component: false) {
     @each $property, $value in $map {
         @if type-of($property) == 'string' {
             // $property defines new Modifier
             @if str-index($property, 'modifier(') == 1 or str-index($property, $modifierGlue) == 1 {
+                @include modifier(get-param($property)) {
+                    @include get-css-from-map($value);
+                }
+            }
+
+            // $property defines new Modifier
+            @if str-index($property, 'is-') == 1 {
                 @include modifier(get-param($property)) {
                     @include get-css-from-map($value);
                 }
@@ -1583,6 +1590,12 @@ $css-properties: (
             @else if $property == 'active' {
                 @include modifier('active') {
                     @include get-css-from-map($value);
+                }
+            }
+
+            @else if type-of($value) == 'map' {
+                @include component($property, $sub-component: $sub-component) {
+                    @include get-css-from-map($value, $sub-component: true);
                 }
             }
 
@@ -1626,6 +1639,10 @@ $css-properties: (
     @else if str-index($string, 'modifier(') == 1 {
         $string: str-replace($string, 'modifier(', '');
         $string: str-replace($string, ')', '');
+    }
+
+    @else if str-index($string, 'is-') == 1 {
+        $string: str-replace($string, 'is-', '');
     }
 
     @else if str-index($string, $componentGlue) == 1 {
@@ -2176,58 +2193,16 @@ $css-properties: (
 
     @if ($parents == '()') {
         @at-root #{$selectors} {
-            @include render-component($this, $components, $content) {
-                @content;
-            }
+            @content;
         }
     }
     @else {
         @at-root #{$parents} {
             #{$selectors} {
-                @include render-component($this, $components, $content) {
-                    @content;
-                }
+                @content;
             }
         }
     }
-
-    // @TODO - this works with node-sass 4.7.2 but not 4.9.0
-    //
-    // @at-root #{if($parents == '()', $selectors, $parents)} {
-    //     #{if($parents == '()', &, $selectors)} {
-    //         @content;
-
-    //         @if selector-is-root-module($this) {
-    //             @each $component in $components {
-    //                 $component: if(map-get($config, $component), map-get($config, $component), ());
-    //                 $content: merge-css-maps($content, $component);
-    //             }
-    //         }
-
-    //         @include get-css-from-map($content);
-    //     }
-    // }
-}
-
-/// Render a component's content
-///
-/// @param {selector} $target
-/// @param {list} $components
-/// @param {map} $content
-@mixin render-component($target, $components, $content, $config: if(variable-exists('config'), $config, ())) {
-    @content;
-
-    @if selector-is-root-module($target) {
-        @each $component in $components {
-            // this only gets components that are first level in the config;
-            // @TODO find way to recurse so no need to use `component(foo)`
-            // on lower levels (allow for just `foo`)
-            $component-styles: if(map-get($config, $component), map-get($config, $component), ());
-            $content: merge-css-maps($content, $component-styles);
-        }
-    }
-
-    @include get-css-from-map($content);
 }
 
 /// Alis for `component` mixin with $sub-component: true
