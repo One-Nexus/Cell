@@ -37,8 +37,9 @@ const files = [
     './src/mixins/_extend.scss',
     './src/mixins/_context.scss',
     './src/mixins/_option.scss',
+    './src/mixins/_pseudo-state.scss',
     './src/mixins/_value.scss',
-    './src/mixins/_pseudo-state.scss'
+    './src/mixins/_wrapper.scss'
 ]
 
 concat(files).then(result => {

@@ -13,7 +13,7 @@
 ///       ...
 ///     }
 ///   }
-@mixin modifier($modifiers, $special: null, $glue: $modifierGlue) {
+@mixin modifier($modifiers, $special: null, $glue: $modifierGlue, $module: $module) {
   $selectors: &;
 
   @if str-index(inspect(&), '.#{$module}') {
