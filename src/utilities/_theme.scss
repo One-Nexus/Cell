@@ -5,5 +5,5 @@
 ///
 /// @param {arglist} $args
 @function theme($args...) {
-    @return map-get-deep($theme, $args...);
+  @return map-get-deep($theme, $args...);
 }

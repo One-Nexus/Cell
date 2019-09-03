@@ -5,10 +5,10 @@
 /// @param {string} $string
 /// @param {string} $glue
 @function strip-glue($string, $glue) {
-    $placeholder: random(99999);
+  $placeholder: random(99999);
 
-    $clean-string: str-replace($string, $string, $placeholder + $string);
-    $clean-string: str-replace($clean-string, $placeholder + $glue, '');
+  $clean-string: str-replace($string, $string, $placeholder + $string);
+  $clean-string: str-replace($clean-string, $placeholder + $glue, '');
 
-    @return $clean-string;
+  @return $clean-string;
 }

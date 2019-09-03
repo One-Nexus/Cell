@@ -6,10 +6,10 @@
 ///
 /// @param {string} $selector - the selecor to clean
 @function clean-selector($selector) {
-    $selector: str-replace(inspect($selector), ' ', ', ');
-    $selector: selector-parse($selector);
-    $selector: list-remove-duplicates($selector);
-    $selector: str-replace(inspect($selector), ', ', ' ');
+  $selector: str-replace(inspect($selector), ' ', ', ');
+  $selector: selector-parse($selector);
+  $selector: list-remove-duplicates($selector);
+  $selector: str-replace(inspect($selector), ', ', ' ');
 
-    @return $selector;
+  @return $selector;
 }

@@ -5,34 +5,34 @@
 ///
 /// @param {string} $string - the string from which to retrieve param
 @function get-param($string) {
-    @if str-index($string, 'component(') == 1 {
-        $string: str-replace($string, 'component(', '');
-        $string: str-replace($string, ')', '');
-    }
+  @if str-index($string, 'component(') == 1 {
+    $string: str-replace($string, 'component(', '');
+    $string: str-replace($string, ')', '');
+  }
 
-    @if str-index($string, 'sub-component(') == 1 {
-        $string: str-replace($string, 'sub-component(', '');
-        $string: str-replace($string, ')', '');
-    }
+  @if str-index($string, 'sub-component(') == 1 {
+    $string: str-replace($string, 'sub-component(', '');
+    $string: str-replace($string, ')', '');
+  }
 
-    @else if str-index($string, 'modifier(') == 1 {
-        $string: str-replace($string, 'modifier(', '');
-        $string: str-replace($string, ')', '');
-    }
+  @else if str-index($string, 'modifier(') == 1 {
+    $string: str-replace($string, 'modifier(', '');
+    $string: str-replace($string, ')', '');
+  }
 
-    @else if str-index($string, 'is-') == 1 {
-        $string: str-replace($string, 'is-', '');
-    }
+  @else if str-index($string, 'is-') == 1 {
+    $string: str-replace($string, 'is-', '');
+  }
 
-    @else if str-index($string, $componentGlue) == 1 {
-        $string: strip-glue($string, $componentGlue);
-    }
+  @else if str-index($string, $componentGlue) == 1 {
+    $string: strip-glue($string, $componentGlue);
+  }
 
-    @else if str-index($string, $modifierGlue) == 1 {
-        $string: strip-glue($string, $modifierGlue);
-    }
+  @else if str-index($string, $modifierGlue) == 1 {
+    $string: strip-glue($string, $modifierGlue);
+  }
 
-    $string: str-replace($string, "'", '');
+  $string: str-replace($string, "'", '');
 
-    @return $string;
+  @return $string;
 }

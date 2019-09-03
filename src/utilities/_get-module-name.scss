@@ -2,10 +2,10 @@
 ///
 /// @param {string} $namespace
 @function get-module-name($namespace) {
-    $modifier-index: str-index($namespace, $modifierGlue);
-    $component-index: str-index($namespace, $componentGlue);
+  $modifier-index: str-index($namespace, $modifierGlue);
+  $component-index: str-index($namespace, $componentGlue);
 
-    $slice-index: if($component-index, $component-index, $modifier-index);
+  $slice-index: if($component-index, $component-index, $modifier-index);
 
-    @return if($slice-index, str-slice($namespace, 0, $slice-index - 1), $namespace);
+  @return if($slice-index, str-slice($namespace, 0, $slice-index - 1), $namespace);
 }

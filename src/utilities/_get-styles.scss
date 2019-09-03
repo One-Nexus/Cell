@@ -5,11 +5,11 @@
 ///
 /// @param {map} $map - the map from which to retrieve styles
 @mixin get-styles($map) {
-    @each $property, $value in $map {
-        @if type-of($value) != 'map' {
-            @if index($css-properties, $property) {
-                #{$property}: $value;
-            }
-        }
+  @each $property, $value in $map {
+    @if type-of($value) != 'map' {
+      @if index($css-properties, $property) {
+        #{$property}: $value;
+      }
     }
+  }
 }

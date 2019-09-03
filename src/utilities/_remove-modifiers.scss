@@ -4,28 +4,28 @@
 ///
 /// @param {list} $selectors - The selector from which to remove modifiers
 @function remove-modifiers($selector) {
-    // convert selector to a string
-    $selector: inspect(nth($selector, 1));
+  // convert selector to a string
+  $selector: inspect(nth($selector, 1));
 
-    $modifier: '';
+  $modifier: '';
 
-    // Find out where the first modifier starts
-    $modifier-index: str-index($selector, '"#{$modifierGlue}');
+  // Find out where the first modifier starts
+  $modifier-index: str-index($selector, '"#{$modifierGlue}');
 
-    @if $modifier-index {
-        // Strip the first part of the selector up until the first modifier
-        $modifier: str-slice($selector, $modifier-index);
-        // Find out where the modifier ends
-        $modifier-end: str-index($modifier, '"]');
-        // Isolate the modifier
-        $modifier: str-slice($modifier, 0, $modifier-end);
-        // Remove the modifier from the selector
-        $selector: str-replace($selector, $modifier, '');
-        // Remove junk characters
-        $selector: str-replace($selector, '[class*=]', '');
-        // Recurse the function to eliminate any remainig modifiers
-        $selector: remove-modifiers($selector);
-    }
+  @if $modifier-index {
+    // Strip the first part of the selector up until the first modifier
+    $modifier: str-slice($selector, $modifier-index);
+    // Find out where the modifier ends
+    $modifier-end: str-index($modifier, '"]');
+    // Isolate the modifier
+    $modifier: str-slice($modifier, 0, $modifier-end);
+    // Remove the modifier from the selector
+    $selector: str-replace($selector, $modifier, '');
+    // Remove junk characters
+    $selector: str-replace($selector, '[class*=]', '');
+    // Recurse the function to eliminate any remainig modifiers
+    $selector: remove-modifiers($selector);
+  }
 
-    @return $selector;
+  @return $selector;
 }

@@ -8,46 +8,44 @@
 /// @param {map} $map-new - The map which holds custom values
 /// @param {string} $parser - Custom parser to use for configuration
 @function config($map-old: (), $map-new: (), $parser: $sassConfigParser) {
+  $map-old: map-merge((
+    'extendOptions' : $extendOptions
+  ), $map-old);
 
-    $map-old: map-merge((
-        'extendOptions' : $extendOptions
-    ), $map-old);
+  // Merge default and custom options
+  $map-merged: map-merge-deep($map-old, $map-new);
 
-    // Merge default and custom options
-    $map-merged: map-merge-deep($map-old, $map-new);
+  // Evaluate configuration values
+  @if ($parser) {
+    $map-merged: call(get-function($parser), $map-merged);
+  }
 
-    // Evaluate configuration values
-    @if ($parser) {
-        $map-merged: call(get-function($parser), $map-merged);
-    }
+  // Store config in global variable
+  $config: $map-merged !global;
+  $smart-config: smart-config($config) !global;
 
-    // Store config in global variable
-    $config: $map-merged !global;
-    $smart-config: smart-config($config) !global;
-
-    // Return merged map
-    @return $map-merged;
-
+  // Return merged map
+  @return $map-merged;
 }
 
 /// Convert configuration keys such as `component(item)` into the
 /// paramater name, i.e. `item`, so they can be retreived with `this()`
 @function smart-config($config) {
-    $smart-config: ();
+  $smart-config: ();
 
-    @each $key, $value in $config {
-        @if type-of($value) == 'map' {
-            $smart-config: map-set($smart-config, get-param($key), smart-config($value));
-        }
-
-        @else {
-            @if type-of($key) == 'string' {
-                $key: get-param($key);
-            }
-
-            $smart-config: map-set($smart-config, $key, $value);
-        }
+  @each $key, $value in $config {
+    @if type-of($value) == 'map' {
+      $smart-config: map-set($smart-config, get-param($key), smart-config($value));
     }
 
-    @return $smart-config;
+    @else {
+      @if type-of($key) == 'string' {
+        $key: get-param($key);
+      }
+
+      $smart-config: map-set($smart-config, $key, $value);
+    }
+  }
+
+  @return $smart-config;
 }

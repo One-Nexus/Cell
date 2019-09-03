@@ -8,5 +8,5 @@
 /// @example
 ///     option($blockquote, 'icon', 'left')
 @function option($args...) {
-    @return map-get-deep($args...);
+  @return map-get-deep($args...);
 }

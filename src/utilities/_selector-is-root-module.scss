@@ -2,18 +2,18 @@
 ///
 /// @param {string} $selector
 @function selector-is-root-module($selector) {
-    // convert selector into a string
-    $selector: inspect($selector);
+  // convert selector into a string
+  $selector: inspect($selector);
 
-    @if $selector == '.#{$module}, [class*="#{$module}#{$modifierGlue}"]' {
-        @return true;
-    }
-    @if $selector == '.#{$module}' {
-        @return true;
-    }
-    @if $selector == '[class*="#{$module}#{$modifierGlue}"]' {
-        @return true;
-    }
+  @if $selector == '.#{$module}, [class*="#{$module}#{$modifierGlue}"]' {
+    @return true;
+  }
+  @if $selector == '.#{$module}' {
+    @return true;
+  }
+  @if $selector == '[class*="#{$module}#{$modifierGlue}"]' {
+    @return true;
+  }
 
-    @return false;
+  @return false;
 }

@@ -2,17 +2,17 @@
 ///
 /// @access public
 @function selector($module, $component: null, $modifier: null) {
-    $selector: '';
+  $selector: '';
 
-    @if $component {
-        $selector: '[class*="#{$module}_"][class*="_#{$component}"]';
-    }
-    @else {
-        $selector: '[class*="#{$module}-"]';
-    }
-    @if $modifier {
-        $selector: '#{$selector}[class*="-#{$modifier}"]';
-    }
+  @if $component {
+    $selector: '[class*="#{$module}_"][class*="_#{$component}"]';
+  }
+  @else {
+    $selector: '[class*="#{$module}-"]';
+  }
+  @if $modifier {
+    $selector: '#{$selector}[class*="-#{$modifier}"]';
+  }
 
-    @return $selector;
+  @return $selector;
 }

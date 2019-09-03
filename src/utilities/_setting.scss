@@ -6,5 +6,5 @@
 /// @param {map} $map
 /// @param {arglist} $keys
 @function setting($map, $keys...) {
-    @return option($map, $keys...);
+  @return option($map, $keys...);
 }

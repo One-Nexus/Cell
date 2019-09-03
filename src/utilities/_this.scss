@@ -5,37 +5,37 @@
 ///
 /// @param {arglist} $options
 @function this($options...) {
-    $value: '';
+  $value: '';
 
-    @if (variable-exists('smart-config')) {
-        $value: option($smart-config, $options...);
+  @if (variable-exists('smart-config')) {
+    $value: option($smart-config, $options...);
+  }
+
+  @else if (variable-exists('config')) {
+    $value: option($config, $options...);
+  }
+
+  @else {
+    @warn 'no config can be found for #{$module}';
+  }
+
+  $debug: true;
+
+  @if (variable-exists('sassConfigParser') and $sassConfigParser) {
+    $value: call(get-function($sassConfigParser), $value);
+  }
+
+  $this: &;
+
+  @if length($this) > 0 {
+    @if str-index(inspect(nth($this, 1)), '%') == 1 {
+      $debug: false;
     }
+  }
 
-    @else if (variable-exists('config')) {
-        $value: option($config, $options...);
-    }
+  @if $debug and not $value and $value != false {
+    @warn '#{$options} not found in #{$module} config';
+  }
 
-    @else {
-        @warn 'no config can be found for #{$module}';
-    }
-
-    $debug: true;
-
-    @if (variable-exists('sassConfigParser') and $sassConfigParser) {
-        $value: call(get-function($sassConfigParser), $value);
-    }
-
-    $this: &;
-
-    @if length($this) > 0 {
-        @if str-index(inspect(nth($this, 1)), '%') == 1 {
-            $debug: false;
-        }
-    }
-
-    @if $debug and not $value and $value != false {
-        @warn '#{$options} not found in #{$module} config';
-    }
-
-    @return $value;
+  @return $value;
 }
