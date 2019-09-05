@@ -17,30 +17,32 @@
 
 ## Overview
 
-Cell is used for styling DOM elements that follow the [Synergy naming convention](https://github.com/One-Nexus/Synergy-Front-End-Guides/wiki/Synergy-Values#synergy-naming-convention) (which includes BEM).
+Cell is used for styling DOM elements that follow the [Synergy naming convention](https://github.com/One-Nexus/Synergy-Front-End-Guides/wiki/Synergy-Values#synergy-naming-convention) (which is practically identical to [BEM](http://getbem.com/)).
 
 > [Learn how to integrate with React components](https://github.com/One-Nexus/Cell/wiki/Creating-a-Module#interface-react---jsx)
 
 * Cell is used for creating modular, configurable and scalable Sass components
 * Works with any Sass implementation (Ruby, Dart, Node...)
 * Requires Sass 3.4+ (4.9+ if using Node-Sass)
-* Import configuration into your Sass/Cell components as JavaScript/JSON
+* [Import themes/module configuration into your Sass/Cell components as JavaScript/JSON](#TODO)
 * Built for the [Synergy framework](https://github.com/One-Nexus/Synergy)
 
 ### Example
 
 Given the following markup for an accordion with an active panel component:
 
+> Unlike traditional BEM, you do not need separate classes for modifiers
+
 ```html
 <div class="accordion">
-    <div class="accordion_panel">
-        <div class="accordion_title">foo</div>
-        <div class="accordion_content">bar</div>
-    </div>
-    <div class="accordion_panel-active">
-        <div class="accordion_title">fizz</div>
-        <div class="accordion_content">buzz</div>
-    </div>
+  <div class="accordion__panel">
+    <div class="accordion__title">foo</div>
+    <div class="accordion__content">bar</div>
+  </div>
+  <div class="accordion__panel--active">
+    <div class="accordion_title">fizz</div>
+    <div class="accordion_content">buzz</div>
+  </div>
 </div>
 ```
 
@@ -48,25 +50,25 @@ This can be styled with Cell like so:
 
 ```scss
 @include module('accordion') {
-    @include component('panel') {
-        ...
+  @include component('panel') {
+    ...
 
-        @include modifier('active') {
-            @include component('content') {
-                display: block;
-                ...
-            }
-        }
-    }
-
-    @include component('title') {
+    @include is('active') {
+      @include component('content') {
+        display: block;
         ...
+      }
     }
+  }
 
-    @include component('content') {
-        display: none;
-        ...
-    }
+  @include component('title') {
+    ...
+  }
+
+  @include component('content') {
+    display: none;
+    ...
+  }
 }
 ```
 
@@ -74,48 +76,23 @@ This can be styled with Cell like so:
 
 ```sass
 @include module('accordion', (
-    'component(panel)': (
-        'modifier(active)': (
-            'component(content)': (
-                display: block,
-                ...
-            )
-        )
-    ),
-
-    'component(title)': (
+  panel: (
+    'is-active': (
+      content: (
+        display: block,
         ...
-    ),
-
-    'component(content)': (
-        display: none,
-        ...
+      )
     )
-));
-```
+  ),
 
-...and even:
+  title: (
+    ...
+  ),
 
-
-```sass
-@include module('accordion', (
-    _panel: (
-        -active: (
-            _content: (
-                display: block,
-                ...
-            )
-        )
-    ),
-
-    _title: (
-        ...
-    ),
-
-    _content: (
-        display: none,
-        ...
-    )
+  content: (
+    display: none,
+    ...
+  )
 ));
 ```
 
@@ -128,7 +105,7 @@ npm install --save @onenexus/cell
 ```
 
 ```scss
-// this path will vary depending on where the library is imported
+// this path will vary depending on where the library is being imported
 @import '../../node_modules/@onenexus/cell/dist/cell';
 ```
 
@@ -137,8 +114,6 @@ If you are using Node Sass, you can import the library anywhere using:
 ```scss
 @import '~@onenexus/cell/dist/cell';
 ```
-
-> Using BEM? Checkout the [Working With BEM](https://github.com/One-Nexus/Cell/wiki/Working-With-BEM) page
 
 > See the [JavaScript Configuration](https://github.com/One-Nexus/Cell/wiki/JavaScript-Configuration) page for instructions on how to use JavaScript/JSON configuration
 
@@ -155,6 +130,8 @@ Cell comes with the following mixins to help create and structure your modules i
 * [Value](https://github.com/One-Nexus/Cell/wiki/Value())
 * [Extend](https://github.com/One-Nexus/Cell/wiki/Extend())
 * [Context](https://github.com/One-Nexus/Cell/wiki/Context())
+* [Pseudo-State](https://github.com/One-Nexus/Cell/wiki/Pseudo-State())
+* [Wrapper](https://github.com/One-Nexus/Cell/wiki/Wrapper())
 
 <img src="http://www.angelfire.com/anime/friezasdomain/animatedgifs/cell/cell6.gif" />
 

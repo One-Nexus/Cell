@@ -1,27 +1,25 @@
-/// Apply styles to a component when certain conditions are met
+/// Apply styles to a component within a certain context
 ///
 /// @author [@esr360](http://twitter.com/esr360)
 /// @access public
 ///
-/// @param {string} $context - The context you wish to use
-@mixin context($context) {
-  $child-selectors: &;
-  $selectors: ();
+/// @param {string} $block - The name of the module/component that has the context
+/// @param {string} $context - The context you wish to test
+@mixin context($block, $context) {
+  @if $block == 'module' { $block: $module }
 
-  @each $item in $context {
-    $selectors: join($selectors, '.#{$module}', comma);
-    $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
+  @if $context {
+    $selector: '[class*="#{$block}#{$modifierGlue}"][class*="#{$modifierGlue}#{$context}"]';
+
+    @if str-index($context, ':') == 1 {
+      $selector: '.#{$block}#{$context}, [class*="#{$block}#{$modifierGlue}"]#{$context}';
+    }
+  } 
+  @else {
+    $selector: '.#{$block}, [class*="#{$block}#{$modifierGlue}"]';
   }
 
-  @if $context == 'module-hovered' {
-    @at-root {
-      #{$selectors} {
-        &:hover {
-          #{$child-selectors} {
-            @content;
-          }
-        }
-      }
-    }
+  @at-root #{$selector} & {
+    @content;
   }
 }
