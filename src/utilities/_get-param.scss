@@ -3,36 +3,53 @@
 /// @author [@esr360](http://twitter.com/esr360)
 /// @access public
 ///
-/// @param {string} $string - the string from which to retrieve param
-@function get-param($string) {
-  @if str-index($string, 'component(') == 1 {
-    $string: str-replace($string, 'component(', '');
-    $string: str-replace($string, ')', '');
+/// @param {string} $source - the string from which to retrieve param
+@function get-param($source) {
+  @if str-index($source, 'component(') == 1 {
+    $source: str-replace($source, 'component(', '');
+    $source: str-replace($source, ')', '');
   }
 
-  @if str-index($string, 'sub-component(') == 1 {
-    $string: str-replace($string, 'sub-component(', '');
-    $string: str-replace($string, ')', '');
+  @else if str-index($source, 'sub-component(') == 1 {
+    $source: str-replace($source, 'sub-component(', '');
+    $source: str-replace($source, ')', '');
   }
 
-  @else if str-index($string, 'modifier(') == 1 {
-    $string: str-replace($string, 'modifier(', '');
-    $string: str-replace($string, ')', '');
+  @else if str-index($source, 'modifier(') == 1 {
+    $source: str-replace($source, 'modifier(', '');
+    $source: str-replace($source, ')', '');
   }
 
-  @else if str-index($string, 'is-') == 1 {
-    $string: str-replace($string, 'is-', '');
+  @else if str-index($source, 'is-') == 1 {
+    $source: str-replace($source, 'is-', '');
   }
 
-  @else if str-index($string, $componentGlue) == 1 {
-    $string: strip-glue($string, $componentGlue);
+  @else if str-index($source, 'with-') == 1 {
+    $source: str-replace($source, 'with-', '');
   }
 
-  @else if str-index($string, $modifierGlue) == 1 {
-    $string: strip-glue($string, $modifierGlue);
+  @else if str-index($source, 'within-') == 1 {
+    $source: str-replace($source, 'within-', '');
   }
 
-  $string: str-replace($string, "'", '');
+  @else if str-index($source, '-is-') > 1 {
+    $block: str-slice($source, 1, str-index($source, '-is-') - 1);
+    $content: str-slice($source, str-index($source, '-is-') + 4, str-length($source));
 
-  @return $string;
+    $source: ($block, $content);
+  }
+
+  @else if str-index($source, $componentGlue) == 1 {
+    $source: strip-glue($source, $componentGlue);
+  }
+
+  @else if str-index($source, $modifierGlue) == 1 {
+    $source: strip-glue($source, $modifierGlue);
+  }
+
+  @if type-of($source) == 'string' {
+    $source: str-replace($source, "'", '');
+  }
+
+  @return $source;
 }

@@ -1,11 +1,8 @@
 /// Create a modifier for a module
 ///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
-///
 /// @param {string|list} $modifiers  - The modifier(s) which you wish to create
 /// @param {string} $special [null] - Add special contextual options to modifier
-/// @param {bool} $glue ['-'] - Desired modifier separator/glue
+/// @param {bool} $glue ['--'] - Desired modifier separator/glue
 ///
 /// @example
 ///   @include module('button') {
@@ -39,22 +36,12 @@
     }
 
     @at-root #{$modifier-selectors} {
-      @if type-of($target) == 'map' and map-get($target, 'module') == $module {
-        #{map-get($target, 'target')} {
-          @content;
-        }
-      }
-      @else {
-        @content;
-      }
+      @content;
     }
   }
 }
 
 /// Alias for modifier() mixin
-///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
 @mixin modifiers($args...) {
   @include modifier($args...) {
     @content;
@@ -62,9 +49,6 @@
 }
 
 /// Alias for modifier() mixin
-///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
 @mixin is($args...) {
   @include modifier($args...) {
     @content;

@@ -5,21 +5,37 @@
 ///
 /// @param {string} $block - The name of the module/component that has the context
 /// @param {string} $context - The context you wish to test
-@mixin context($block, $context) {
-  @if $block == 'module' { $block: $module }
+@mixin context($block, $context: null) {
+  $selector: ();
 
-  @if $context {
-    $selector: '[class*="#{$block}#{$modifierGlue}"][class*="#{$modifierGlue}#{$context}"]';
-
-    @if str-index($context, ':') == 1 {
-      $selector: '.#{$block}#{$context}, [class*="#{$block}#{$modifierGlue}"]#{$context}';
+  @if type-of($block) == 'list' {
+    $block-from-list: false;
+    @each $item in $block {
+      $block-from-list: if($block-from-list, '#{$block-from-list}#{$componentGlue}#{$item}', $item);
     }
-  } 
-  @else {
-    $selector: '.#{$block}, [class*="#{$block}#{$modifierGlue}"]';
+    $block: $block-from-list;
   }
 
-  @at-root #{$selector} & {
-    @content;
+  @if $context {
+    @each $item in $context {
+      @if str-index($item, ':') == 1 {
+        $selector: append($selector, '.#{$block}#{$item}', comma);
+        $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"]#{$item}', comma);
+      }
+      @else {
+        $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"][class*="#{$modifierGlue}#{$item}"]', comma);
+      }
+    }
+  }
+  @else {
+    $selector: append($selector, '.#{$block}', comma);
+    $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"]', comma);
+    $selector: append($selector, '[class*="#{$componentGlue}#{$block}"]', comma);
+  }
+
+  @each $item in $selector {
+    @at-root #{$item} & {
+      @content;
+    }
   }
 }

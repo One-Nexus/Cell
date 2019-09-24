@@ -34,7 +34,7 @@
     $selectors: ();
 
     @each $component in $components {
-      $selector: '.#{$namespace}#{$glue}#{$component}, [class*="#{$namespace}#{$glue}#{$component}-"]';
+      $selector: '.#{$namespace}#{$glue}#{$component}, [class*="#{$namespace}#{$glue}#{$component}#{$modifierGlue}"]';
 
       @if not $cascade {
         $selector: '> #{$selector}';

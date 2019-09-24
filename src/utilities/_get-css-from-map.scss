@@ -21,6 +21,32 @@
         }
       }
 
+      // $property defines new Modifier on parent element
+      @if str-index($property, '-is-') {
+        $block: nth(get-param($property), 1);
+        $context: nth(get-param($property), 2);
+
+        @if $block == 'block' { $block: $module }
+
+        @include context($block, $context) {
+          @include get-css-from-map($value);
+        }
+      }
+
+      // $property defines new context
+      @if str-index($property, 'with-') == 1 {
+        @include context($module, get-param($property)) {
+          @include get-css-from-map($value);
+        }
+      }
+
+      // $property defines new context
+      @if str-index($property, 'within-') == 1 {
+        @include context(get-param($property)) {
+          @include get-css-from-map($value);
+        }
+      }
+
       // $property defines new Component
       @else if str-index($property, 'component(') == 1 or str-index($property, $componentGlue) == 1 {
         @include component(get-param($property)) {
