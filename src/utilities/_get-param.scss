@@ -20,25 +20,6 @@
     $source: str-replace($source, ')', '');
   }
 
-  @else if str-index($source, 'is-') == 1 {
-    $source: str-replace($source, 'is-', '');
-  }
-
-  @else if str-index($source, 'with-') == 1 {
-    $source: str-replace($source, 'with-', '');
-  }
-
-  @else if str-index($source, 'within-') == 1 {
-    $source: str-replace($source, 'within-', '');
-  }
-
-  @else if str-index($source, '-is-') > 1 {
-    $block: str-slice($source, 1, str-index($source, '-is-') - 1);
-    $content: str-slice($source, str-index($source, '-is-') + 4, str-length($source));
-
-    $source: ($block, $content);
-  }
-
   @else if str-index($source, $componentGlue) == 1 {
     $source: strip-glue($source, $componentGlue);
   }

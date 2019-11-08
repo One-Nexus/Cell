@@ -14,39 +14,6 @@
         }
       }
 
-      // $property defines new Modifier
-      @if str-index($property, 'is-') == 1 {
-        @include modifier(get-param($property)) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // $property defines new Modifier on parent element
-      @if str-index($property, '-is-') {
-        $block: nth(get-param($property), 1);
-        $context: nth(get-param($property), 2);
-
-        @if $block == 'block' { $block: $module }
-
-        @include context($block, $context) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // $property defines new context
-      @if str-index($property, 'with-') == 1 {
-        @include context($module, get-param($property)) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // $property defines new context
-      @if str-index($property, 'within-') == 1 {
-        @include context(get-param($property)) {
-          @include get-css-from-map($value);
-        }
-      }
-
       // $property defines new Component
       @else if str-index($property, 'component(') == 1 or str-index($property, $componentGlue) == 1 {
         @include component(get-param($property)) {
@@ -57,6 +24,39 @@
       // $property defines new Component
       @else if str-index($property, 'sub-component(') == 1 {
         @include sub-component(get-param($property)) {
+          @include get-css-from-map($value);
+        }
+      }
+
+      // $property defines new Modifier
+      @else if str-index($property, 'is-') == 1 {
+        @include modifier(str-replace($property, 'is-', '')) {
+          @include get-css-from-map($value);
+        }
+      }
+
+      // $property defines new Modifier on parent element
+      @else if str-index($property, '-is-') {
+        $block: str-slice($property, 1, str-index($property, '-is-') - 1);
+        $context: str-slice($property, str-index($property, '-is-') + 4, str-length($property));
+
+        @if $block == 'block' { $block: $module }
+
+        @include context($block, $context) {
+          @include get-css-from-map($value);
+        }
+      }
+
+      // $property defines new context
+      @else if str-index($property, 'with-') == 1 {
+        @include context($module, str-replace($property, 'with-', '')) {
+          @include get-css-from-map($value);
+        }
+      }
+
+      // $property defines new context
+      @else if str-index($property, 'within-') == 1 {
+        @include context(str-replace($property, 'within-', '')) {
           @include get-css-from-map($value);
         }
       }
