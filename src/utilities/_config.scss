@@ -16,6 +16,9 @@
   $map-merged: map-merge-deep($map-old, $map-new);
 
   // Evaluate configuration values
+  $map-merged: eval-config($map-merged);
+
+  // Evaluate configuration values
   @if ($parser) {
     $map-merged: call(get-function($parser), $map-merged);
   }
@@ -26,6 +29,27 @@
 
   // Return merged map
   @return $map-merged;
+}
+
+/// Evaluate properties from function-calls
+@function eval-config($config) {
+  $evaluated-config: ();
+
+  @each $key, $value in $config {
+    @if type-of($value) == 'map' {
+      $evaluated-config: map-set($evaluated-config, $key, eval-config($value));
+    }
+
+    @else {
+      @if type-of(nth($value, 1)) == 'string' and function-exists(nth($value, 1)) and type-of(nth($value, 2)) == 'list' {
+        $value: call(get-function(nth($value, 1)), nth($value, 2)...);
+      }
+
+      $evaluated-config: map-set($evaluated-config, $key, $value);
+    }
+  }
+
+  @return $evaluated-config;
 }
 
 /// Convert configuration keys such as `component(item)` into the
