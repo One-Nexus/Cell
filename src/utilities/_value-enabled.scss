@@ -1,8 +1,5 @@
 /// Determine if a passed value should be considered 'enabled'
 ///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
-///
 /// @param {*} $value - the value to check
 /// @returns {*} - whether or not the option is enabled
 @function value-enabled($value) {

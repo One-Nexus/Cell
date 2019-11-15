@@ -1,8 +1,5 @@
 /// Merge maps containing module/component CSS
 ///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
-///
 /// @param {string|list} $option - the desired option
 @function merge-css-maps($source, $target) {
   $content: map-merge-deep($source, $target);

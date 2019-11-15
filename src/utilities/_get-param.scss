@@ -1,8 +1,5 @@
 /// Get parmater from config string
 ///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
-///
 /// @param {string} $source - the string from which to retrieve param
 @function get-param($source) {
   @if str-index($source, 'component(') == 1 {

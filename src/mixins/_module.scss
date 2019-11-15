@@ -1,7 +1,5 @@
 /// Create a new module
 ///
-/// @author [@esr360](http://twitter.com/esr360)
-///
 /// @param {string|list} $modules - The module(s) you wish to create
 ///
 /// @example
@@ -58,9 +56,9 @@
         @include module-content($modules, $config, $target);
       }
 
-      @include get-css-from-map($content);
-
       @content;
+
+      @include get-css-from-map($content);
     }
   }
 }

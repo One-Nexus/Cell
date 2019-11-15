@@ -1,9 +1,6 @@
 /// Used to merge a module's default configuration with any custom
 /// values passed to the module
 ///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
-///
 /// @param {map} $map-old - The map which holds default configuration
 /// @param {map} $map-new - The map which holds custom values
 /// @param {string} $parser - Custom parser to use for configuration

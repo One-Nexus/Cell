@@ -1,6 +1,4 @@
 /// Wrap a module or group a collection of modules
-///
-/// @author [@esr360](http://twitter.com/esr360)
 @mixin wrapper($namespace: 'wrapper') {
   @at-root {
     @include module($namespace) {
@@ -12,8 +10,6 @@
 }
 
 /// Alias for wrapper() mixin
-///
-/// @author [@esr360](http://twitter.com/esr360)
 @mixin group() {
   @include wrapper('group') {
     @content;

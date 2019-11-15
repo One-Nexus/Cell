@@ -1,8 +1,5 @@
 /// Get a value from the current module's configuration
 ///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
-///
 /// @param {arglist} $options
 @function this($options...) {
   $value: '';

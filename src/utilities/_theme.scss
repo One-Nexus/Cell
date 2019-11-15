@@ -1,8 +1,5 @@
 /// Get a value from $theme if it exists
 ///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
-///
 /// @param {arglist} $args
 @function theme($args...) {
   @return map-get-deep($theme, $args...);

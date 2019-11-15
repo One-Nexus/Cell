@@ -15,7 +15,8 @@
     "components",
     "front-end",
     "framework",
-    "web"
+    "web",
+    "synergy"
   ],
   "bugs": {
     "url": "https://github.com/One-Nexus/Cell/issues"
@@ -35,12 +36,13 @@
     "node-sass": "^4.9.0",
     "sass-true": "^4.0.0",
     "sassdoc": "^2.5.0",
+    "sassdoc-theme-flippant": "^0.1.0",
     "stylelint": "^8.4.0"
   },
   "scripts": {
     "lint": "stylelint src/**/*.scss",
     "test": "mocha test/tests.js",
-    "docs": "sassdoc src/ -d docs/sass",
+    "docs": "sassdoc src/ -d docs/sass --theme flippant",
     "sass": "node ./build/sass-concat.js",
     "build": "npm run lint && npm test && npm run docs && npm run sass"
   }

@@ -1,8 +1,5 @@
 /// Apply styles to a component within a certain context
 ///
-/// @author [@esr360](http://twitter.com/esr360)
-/// @access public
-///
 /// @param {string} $block - The name of the module/component that has the context
 /// @param {string} $context - The context you wish to test
 @mixin context($block, $context: null) {
