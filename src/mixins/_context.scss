@@ -30,7 +30,6 @@
   @else {
     $selector: append($selector, '.#{$block}', comma);
     $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"]', comma);
-    // $selector: append($selector, '[class*="#{$componentGlue}#{$block}"]', comma);
   }
 
   @each $item in $selector {

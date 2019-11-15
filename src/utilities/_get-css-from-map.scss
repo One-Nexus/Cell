@@ -37,12 +37,10 @@
 
       // $property defines new Modifier on parent element
       @else if str-index($property, '-is-') {
-        $block: str-slice($property, 1, str-index($property, '-is-') - 1);
+        $component: str-slice($property, 1, str-index($property, '-is-') - 1);
         $context: str-slice($property, str-index($property, '-is-') + 4, str-length($property));
 
-        @if $block == 'block' { $block: $module }
-
-        @include context($block, $context) {
+        @include context(($module, $component), $context) {
           @include get-css-from-map($value);
         }
       }
@@ -57,6 +55,13 @@
       // $property defines new context
       @else if str-index($property, 'within-') == 1 {
         @include context(str-replace($property, 'within-', '')) {
+          @include get-css-from-map($value);
+        }
+      }
+
+      // $property defines pseudo-state/pseudo-element
+      @else if str-index($property, ':') == 1 {
+        @include pseudo-state(str-replace($property, ':', '')) {
           @include get-css-from-map($value);
         }
       }
