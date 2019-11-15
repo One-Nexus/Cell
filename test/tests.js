@@ -1,11 +1,5 @@
-///****************************************************************
-/// Synergy - https://github.com/esr360/Synergy
-///
-/// @author [@esr360](http://twitter.com/esr360)
-///****************************************************************
+const path = require('path');
+const sassTrue = require('sass-true');
+const sassFile = path.join(__dirname, 'tests.scss');
 
-var path = require('path');
-var sassTrue = require('sass-true');
-var sassFile = path.join(__dirname, 'tests.scss');
-
-sassTrue.runSass({file: sassFile}, describe, it);
+sassTrue.runSass({ file: sassFile }, { describe, it });

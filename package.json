@@ -32,9 +32,9 @@
   },
   "devDependencies": {
     "concat": "^1.0.3",
-    "mocha": "^3.4.2",
+    "mocha": "^6.2.2",
     "node-sass": "^4.9.0",
-    "sass-true": "^4.0.0",
+    "sass-true": "^5.0.0",
     "sassdoc": "^2.5.0",
     "sassdoc-theme-flippant": "^0.1.0",
     "stylelint": "^8.4.0"

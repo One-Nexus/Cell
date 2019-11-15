@@ -6,60 +6,61 @@
 ///****************************************************************
 
 @include describe('Module') {
-    $result: '';
+  $result: '';
 
-    @include it('Outputs static and chained selectors when only first param is passed') {
+  @include it('Outputs static and chained selectors when only first param is passed') {
+    @include module('foo') {
+      $result: #{&};
+    }
+    @include assert-equal(
+      $result, '.foo, [class*="foo--"]'
+    );
+  }
+
+  @include it('Outputs expected selectors when multiple modules passed') {
+    @include module(('foo', 'bar')) {
+      $result: #{&};
+    }
+    @include assert-equal(
+      $result, '.foo, [class*="foo--"], .bar, [class*="bar--"]'
+    );
+  }
+
+  @include it('Outputs expected selectors when nested within another module') {
+    @include module('foo') {
+      @include module('bar') {
+        $result: #{&};
+      }
+    }
+    @include assert-equal(
+      $result, '.foo .bar, .foo [class*="bar--"], [class*="foo--"] .bar, [class*="foo--"] [class*="bar--"]'
+    );
+  }
+
+  @include it('Surpresses output when $disable-output is true') {
+    $disable-output: true !global;
+
+    @include assert {
+      @include output {
         @include module('foo') {
-            $result: #{&};
+          height: 100px;
         }
-        @include assert-equal(
-            $result, '.foo, [class*="foo--"]'
-        );
+      }
+
+      @include expect {}
     }
 
-    @include it('Outputs expected selectors when multiple modules passed') {
-        @include module(('foo', 'bar')) {
-            $result: #{&};
-        }
-        @include assert-equal(
-            $result, '.foo, [class*="foo--"], .bar, [class*="bar--"]'
-        );
-    }
+    $disable-output: false !global;
+  }
 
-    @include it('Outputs expected selectors when nested within another module') {
-        @include module('foo') {
-            @include module('bar') {
-                $result: #{&};
-            }
-        }
-        @include assert-equal(
-            $result, '.foo .bar, .foo [class*="bar--"], [class*="foo--"] .bar, [class*="foo--"] [class*="bar--"]'
-        );
-    }
-
-    @include it('Surpresses output when $disable-output is true') {
-        $disable-output: true !global;
-
-        @include assert {
-            @include output {
-                @include module('foo') {
-                    height: 100px;
-                }
-            }
-            @include expect {}
-        }
-
-        $disable-output: false !global;
-    }
-
-    // @include it('Outputs CSS from config') {
-    //     @include assert('You can also describe the assertion...') {
-    //         @include output {
-    //             width: 14em + 2;
-    //         }
-    //         @include expect {
-    //             width: 16em;
-    //         }
-    //     }
-    // }
+  // @include it('Outputs CSS from config') {
+  //   @include assert('You can also describe the assertion...') {
+  //     @include output {
+  //       width: 14em + 2;
+  //     }
+  //     @include expect {
+  //       width: 16em;
+  //     }
+  //   }
+  // }
 }
