@@ -2,6 +2,6 @@
 .vscode
 .settings
 .sass-cache
+.DS_Store
 debug.log
 node_modules
-docs
