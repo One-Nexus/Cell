@@ -2,5 +2,11 @@
 ///
 /// @param {arglist} $args
 @function theme($args...) {
-  @return map-get-deep($theme, $args...);
+  @if variable-exists('theme') and map-get-deep($theme, $args...) {
+    @return map-get-deep($theme, $args...);
+  }
+
+  @else {
+    @return ('theme', $args);
+  }
 }

@@ -1,5 +1,5 @@
 @mixin foo($custom: ()) {
-  $foo: config((
+  $foo: create-config((
     'foo' : ('bar' : false)
   ), $custom);
 }

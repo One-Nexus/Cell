@@ -8,7 +8,7 @@ const files = [
   // config
   './src/_config.scss',
   // utilities
-  './src/utilities/_config.scss',
+  './src/utilities/_create-config.scss',
   './src/utilities/_css-properties.scss',
   './src/utilities/_enabled.scss',
   './src/utilities/_get-css-from-map.scss',

@@ -4,10 +4,17 @@
 /// @param {map} $map-old - The map which holds default configuration
 /// @param {map} $map-new - The map which holds custom values
 /// @param {string} $parser - Custom parser to use for configuration
-@function config($map-old: (), $map-new: (), $parser: $sassConfigParser) {
+@function create-config($map-old: (), $map-new: (), $parser: $sassConfigParser) {
   $map-old: map-merge((
     'extendOptions' : $extendOptions
   ), $map-old);
+
+  // Merge theme values
+  @if variable-exists('theme') {
+    @if map-has-key($theme, 'modules') {
+      $map-old: map-merge-deep($map-old, map-get-deep($theme, 'modules', map-get($map-old, 'name')));
+    }
+  }
 
   // Merge default and custom options
   $map-merged: map-merge-deep($map-old, $map-new);
@@ -38,7 +45,7 @@
     }
 
     @else {
-      @if type-of(nth($value, 1)) == 'string' and function-exists(nth($value, 1)) and type-of(nth($value, 2)) == 'list' {
+      @if type-of($value) == 'list' and type-of(nth($value, 1)) == 'string' and function-exists(nth($value, 1)) {
         $value: call(get-function(nth($value, 1)), nth($value, 2)...);
       }
 
