@@ -376,7 +376,8 @@ $module: null !default;
   ), $map-old);
 
   // Merge theme values
-  @if variable-exists('theme') {
+  @if variable-exists('theme') and not variable-exists('CellThemeProcessed') {
+    @debug $theme;
     @if map-has-key($theme, 'modules') {
       $map-old: map-merge-deep($map-old, map-get-deep($theme, 'modules', map-get($map-old, 'name')));
     }
