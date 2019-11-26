@@ -271,7 +271,7 @@ const Accordion = ({ panels, ...props }) => {
   return (
     <Module name='accordion' { ...props }>
       {panels.map(({ heading, content }, index) => (
-        <Component name='panel' active={activeIndex === index}>
+        <Component name='panel' active={index === activeIndex}>
           <Component name='heading' onClick={() => toggle(index)}>
             {heading}
           </Component>
