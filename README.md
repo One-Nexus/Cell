@@ -107,7 +107,7 @@ Cell allows you to go about this in a dfferent way, allowing you to keep all sty
     display: none;
     ...
 
-    @include context('panel', 'active') {
+    @include context(($this, 'panel'), 'active') {
       display: block;
     }
   }
