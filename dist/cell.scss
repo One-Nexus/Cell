@@ -1817,6 +1817,14 @@ $css-properties: (
 @function setting($map, $keys...) {
   @return option($map, $keys...);
 }
+/// Show/hide an element depending on the passed condition
+@mixin show($context...) {
+  display: none;
+
+  @include context($context...) {
+    display: block;
+  }
+}
 /// Strip the glue (-- , __) from a string
 ///
 /// @param {string} $string

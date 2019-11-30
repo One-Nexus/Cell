@@ -21,6 +21,7 @@ const files = [
   './src/utilities/_remove-modifiers.scss',
   './src/utilities/_selector-to-map.scss',
   './src/utilities/_setting.scss',
+  './src/utilities/_show.scss',
   './src/utilities/_strip-glue.scss',
   './src/utilities/_theme.scss',
   './src/utilities/_this.scss',
