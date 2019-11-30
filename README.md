@@ -56,8 +56,8 @@ Given the following markup for an accordion with an active panel component:
     <div class="accordion__content">bar</div>
   </div>
   <div class="accordion__panel--active">
-    <div class="accordion_title">fizz</div>
-    <div class="accordion_content">buzz</div>
+    <div class="accordion__title">fizz</div>
+    <div class="accordion__content">buzz</div>
   </div>
 </div>
 ```
