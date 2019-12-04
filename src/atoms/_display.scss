@@ -1,0 +1,12 @@
+/// Cell Atom - Display property
+///
+/// @param {list} $context - The desired context/condition
+/// @param {*} $default - The default value to use when the context is not met
+/// @param {*} $value - The value to use when the context is met
+@mixin display($context, $value, $default) {
+  display: $default;
+
+  @include context($context...) {
+    display: $value;
+  }
+}

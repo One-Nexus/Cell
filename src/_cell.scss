@@ -8,6 +8,10 @@
 
 @import 'config';
 
+@import 'atoms/display';
+@import 'atoms/position';
+@import 'atoms/visibility';
+
 @import 'utilities/create-config';
 @import 'utilities/css-properties';
 @import 'utilities/enabled';
@@ -21,7 +25,6 @@
 @import 'utilities/remove-modifiers';
 @import 'utilities/selector-to-map';
 @import 'utilities/setting';
-@import 'utilities/show';
 @import 'utilities/strip-glue';
 @import 'utilities/theme';
 @import 'utilities/this';

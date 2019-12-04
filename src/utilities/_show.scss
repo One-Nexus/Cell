@@ -1,8 +1,0 @@
-/// Show/hide an element depending on the passed condition
-@mixin show($context...) {
-  display: none;
-
-  @include context($context...) {
-    display: block;
-  }
-}

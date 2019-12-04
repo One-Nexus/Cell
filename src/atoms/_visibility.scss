@@ -1,0 +1,12 @@
+/// Cell Atom - Visibility property
+///
+/// @param {list} $context - The desired context/condition
+/// @param {*} $default - The default value to use when the context is not met
+/// @param {*} $value - The value to use when the context is met
+@mixin visibility($context, $value, $default) {
+  visibility: $default;
+
+  @include context($context...) {
+    visibility: $value;
+  }
+}

@@ -7,6 +7,10 @@ const files = [
   './node_modules/Sass-Boost/dist/_sass-boost.scss',
   // config
   './src/_config.scss',
+  // atoms
+  './src/atoms/_display.scss',
+  './src/atoms/_position.scss',
+  './src/atoms/_visibility.scss',
   // utilities
   './src/utilities/_create-config.scss',
   './src/utilities/_css-properties.scss',
@@ -21,7 +25,6 @@ const files = [
   './src/utilities/_remove-modifiers.scss',
   './src/utilities/_selector-to-map.scss',
   './src/utilities/_setting.scss',
-  './src/utilities/_show.scss',
   './src/utilities/_strip-glue.scss',
   './src/utilities/_theme.scss',
   './src/utilities/_this.scss',

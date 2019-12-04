@@ -364,6 +364,42 @@ $sassConfigParser: null !default;
 
 // The variable to hold a single module (do not edit)
 $module: null !default;
+/// Cell Atom - Display property
+///
+/// @param {list} $context - The desired context/condition
+/// @param {*} $default - The default value to use when the context is not met
+/// @param {*} $value - The value to use when the context is met
+@mixin display($context, $value, $default) {
+  display: $default;
+
+  @include context($context...) {
+    display: $value;
+  }
+}
+/// Cell Atom - Position property
+///
+/// @param {list} $context - The desired context/condition
+/// @param {*} $default - The default value to use when the context is not met
+/// @param {*} $value - The value to use when the context is met
+@mixin position($context, $value, $default) {
+  position: $default;
+
+  @include context($context...) {
+    position: $value;
+  }
+}
+/// Cell Atom - Visibility property
+///
+/// @param {list} $context - The desired context/condition
+/// @param {*} $default - The default value to use when the context is not met
+/// @param {*} $value - The value to use when the context is met
+@mixin visibility($context, $value, $default) {
+  visibility: $default;
+
+  @include context($context...) {
+    visibility: $value;
+  }
+}
 /// Used to merge a module's default configuration with any custom
 /// values passed to the module
 ///
@@ -1816,14 +1852,6 @@ $css-properties: (
 /// @param {arglist} $keys
 @function setting($map, $keys...) {
   @return option($map, $keys...);
-}
-/// Show/hide an element depending on the passed condition
-@mixin show($context...) {
-  display: none;
-
-  @include context($context...) {
-    display: block;
-  }
 }
 /// Strip the glue (-- , __) from a string
 ///

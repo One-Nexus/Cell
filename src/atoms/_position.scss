@@ -1,0 +1,12 @@
+/// Cell Atom - Position property
+///
+/// @param {list} $context - The desired context/condition
+/// @param {*} $default - The default value to use when the context is not met
+/// @param {*} $value - The value to use when the context is met
+@mixin position($context, $value, $default) {
+  position: $default;
+
+  @include context($context...) {
+    position: $value;
+  }
+}
