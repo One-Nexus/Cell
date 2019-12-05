@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/%40onenexus%2Fcell.svg)]((https://www.npmjs.com/package/@onenexus/cell))
 [![npm downloads](https://img.shields.io/npm/dm/@onenexus/cell.svg)](https://www.npmjs.com/package/@onenexus/cell)
 
-> Style BEM DOM elements using Sass
+> Style BEM DOM elements using Sass [[View SassDocs](https://one-nexus.github.io/Cell/sass/)]
 
 <img height="80px" src="http://onenexus.io/cell/images/cell-logo.png" />
 
@@ -11,7 +11,7 @@
 * [Installation & Setup](#installation--setup)
 * [Creating a Module](https://github.com/One-Nexus/Cell/wiki/Creating-a-Module)
 * [Mixins](#mixins)
-* [Utility Functions](#utility-functions)
+* [Utility Functions](#utilities)
 
 <table>
   <thead>
@@ -56,8 +56,8 @@ Given the following markup for an accordion with an active panel component:
     <div class="accordion__content">bar</div>
   </div>
   <div class="accordion__panel--active">
-    <div class="accordion__title">fizz</div>
-    <div class="accordion__content">buzz</div>
+    <div class="accordion_title">fizz</div>
+    <div class="accordion_content">buzz</div>
   </div>
 </div>
 ```
@@ -81,8 +81,8 @@ This can be styled with Cell like so:
   }
 
   @include component('content') {
-    display: none;
     ...
+    display: none;
   }
 }
 ```
@@ -104,12 +104,35 @@ Cell allows you to go about this in a dfferent way, allowing you to keep all sty
   }
 
   @include component('content') {
-    display: none;
     ...
+    display: none;
 
     @include context(($this, 'panel'), 'active') {
       display: block;
     }
+  }
+}
+```
+
+### Using [Cell Atoms](https://github.com/One-Nexus/Cell/wiki/Atoms)
+
+> [Learn more about Cell Atoms](https://github.com/One-Nexus/Cell/wiki/Atoms)
+
+Continuing from the previous example, the `display` Atom can instead be used to handle the `display` property:
+
+```scss
+@include module('accordion') {
+  @include component('panel') {
+    ...
+  }
+
+  @include component('title') {
+    ...
+  }
+
+  @include component('content') {
+    ...
+    @include display((($this, 'panel'), 'active'), block, none);
   }
 }
 ```
@@ -297,6 +320,7 @@ This solution offers all the practical benefits of scoped styling (thanks to the
 * [Theming](https://github.com/One-Nexus/Cell/wiki/Theming)
 * [Cell Query Draft (CQD)](https://github.com/One-Nexus/Cell/wiki/Cell-Query-Draft)
 * [Using with JavaScript](https://github.com/One-Nexus/Cell/wiki/JavaScript-Configuration)
+* [Atoms](https://github.com/One-Nexus/Cell/wiki/Atoms)
 
 ## Mixins
 
@@ -314,13 +338,13 @@ Cell comes with the following mixins to help create and structure your modules i
 
 ## Utility Functions
 
-* [Create Config](https://github.com/One-Nexus/Cell/wiki/Utility-Functions#create-config)
-* [Enabled](https://github.com/One-Nexus/Cell/wiki/Utility-Functions#enabled)
-* [Value Enabled](https://github.com/One-Nexus/Cell/wiki/Utility-Functions#value-enabled)
-* [Option](https://github.com/One-Nexus/Cell/wiki/Utility-Functions#option)
-* [Setting](https://github.com/One-Nexus/Cell/wiki/Utility-Functions#setting)
-* [This](https://github.com/One-Nexus/Cell/wiki/Utility-Functions#this)
-* [Theme](https://github.com/One-Nexus/Cell/wiki/Utility-Functions#theme)
+* [Create Config](https://github.com/One-Nexus/Cell/wiki/utilities#create-config)
+* [Enabled](https://github.com/One-Nexus/Cell/wiki/utilities#enabled)
+* [Value Enabled](https://github.com/One-Nexus/Cell/wiki/utilities#value-enabled)
+* [Option](https://github.com/One-Nexus/Cell/wiki/utilities#option)
+* [Setting](https://github.com/One-Nexus/Cell/wiki/utilities#setting)
+* [This](https://github.com/One-Nexus/Cell/wiki/utilities#this)
+* [Theme](https://github.com/One-Nexus/Cell/wiki/utilities#theme)
 
 ## BEM Inspired Motivation
 
