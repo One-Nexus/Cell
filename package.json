@@ -1,6 +1,6 @@
 {
   "name": "@onenexus/cell",
-  "version": "1.0.0-beta.16",
+  "version": "1.0.0-beta.17",
   "description": "Style BEM DOM elements using Sass",
   "main": "dist/_synergy.scss",
   "author": "(Edmund Reed)[http://twitter.com/esr360] <esr360@live.com>",
@@ -27,7 +27,7 @@
     "url": "https://github.com/One-Nexus/Cell.git"
   },
   "dependencies": {
-    "@onenexus/synergy-sass-importer": "1.0.0-beta.7",
+    "@onenexus/synergy-sass-importer": "1.0.0-beta.8",
     "Sass-Boost": "^1.1.0"
   },
   "devDependencies": {
