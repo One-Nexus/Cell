@@ -2137,12 +2137,16 @@ $css-properties: (
   @if ($parents == '()') {
     @at-root #{$selectors} {
       @content;
+
+      @include get-css-from-map($content);
     }
   }
   @else {
     @at-root #{$parents} {
       #{$selectors} {
         @content;
+
+        @include get-css-from-map($content);
       }
     }
   }
