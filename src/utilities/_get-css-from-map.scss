@@ -1,7 +1,7 @@
 /// Get CSS from Sass map
 ///
 /// @param {map} $map - The map from which to get CSS
-@mixin get-css-from-map($map, $sub-component: false) {
+@mixin get-css-from-map($map, $sub-component: false, $prevContext: false) {
   @each $property, $value in $map {
     @if type-of($property) == 'string' {
       // $property defines new Modifier
@@ -25,33 +25,75 @@
         }
       }
 
-      // $property defines new Modifier
+      /**
+      * Determine if current node is queried modifier/state
+      */
       @else if str-index($property, 'is-') == 1 {
         @include modifier(str-replace($property, 'is-', '')) {
           @include get-css-from-map($value);
         }
       }
 
-      // $property defines new Modifier on parent element
+      /**
+      * Determine if parent module/block is queried modifier/state
+      */
+      @else if str-index($property, 'block-is-') == 1 or str-index($property, '~') == 1 {
+        $context: if(str-index($property, '~') == 1, str-replace($property, '~', ''), str-replace($property, '~', 'block-is-'));
+
+        @include context($module, $context) {
+          @include get-css-from-map($value);
+        }
+      }
+
+      /**
+       * @TODO needs to work recursively
+       */
+      @else if str-index($property, 'and-is-') == 1 {
+        $context: str-replace($property, 'and-is-', '');
+        $prevContext: ('block': nth($prevContext, 1), 'context': nth($prevContext, 2));
+        $prevChunk: create-selector-from-context(map-get($prevContext, 'block'), map-get($prevContext, 'context'));
+        $newContext: append(map-get($prevContext, 'context'), $context);
+        $newChunk: create-selector-from-context(map-get($prevContext, 'block'), $newContext, $pipeContexts: true);
+
+        $selector: ();
+
+        @debug &;
+        @debug nth($prevChunk, 1);
+        @debug $newChunk;
+
+        @each $chunk in selector-parse(str-replace(inspect($newChunk), ' ', ', ')) {
+          @each $item in & {
+            $selector: append($selector, selector-replace($item, nth($prevChunk, 1), $chunk), comma);
+          }
+        }
+
+        @at-root {
+          #{$selector} {
+            @include get-css-from-map($value, $prevContext: (map-get($prevContext, 'block'), $newContext));
+          }
+        }
+      }
+
+      /**
+      * Determine if specified parent component is queried modifier/state
+      */
       @else if str-index($property, '-is-') {
         $component: str-slice($property, 1, str-index($property, '-is-') - 1);
         $context: str-slice($property, str-index($property, '-is-') + 4, str-length($property));
 
         @include context(($module, $component), $context) {
-          @include get-css-from-map($value);
+          @include get-css-from-map($value, $prevContext: (($module, $component), $context));
         }
       }
 
-      // $property defines new context
+      /**
+      * Determine if current node is a child of the queried component/module,
+      * and set the queried component/module as the new context
+      */
       @else if str-index($property, 'with-') == 1 {
-        @include context($module, str-replace($property, 'with-', '')) {
-          @include get-css-from-map($value);
-        }
-      }
+        $component: str-replace($property, 'with-', '');
 
-      // $property defines new context
-      @else if str-index($property, 'within-') == 1 {
-        @include context(str-replace($property, 'within-', '')) {
+        @include context($component) {
           @include get-css-from-map($value);
         }
       }

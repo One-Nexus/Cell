@@ -1,36 +1,12 @@
 /// Apply styles to a component within a certain context
 ///
-/// @param {string} $block - The name of the module/component that has the context
-/// @param {string} $context - The context you wish to test
-@mixin context($block, $context: null) {
-  $selector: ();
+/// @param {arglist} $context
+@mixin context($context...) {
+  $selector: create-selector-from-context($context...);
+  $scope: &;
 
-  @if type-of($block) == 'list' {
-    $block-from-list: false;
-    @each $item in $block {
-      $block-from-list: if($block-from-list, '#{$block-from-list}#{$componentGlue}#{$item}', $item);
-    }
-    $block: $block-from-list;
-  }
-
-  @if $context {
-    @each $item in $context {
-      @if str-index($item, ':') == 1 {
-        $selector: append($selector, '.#{$block}#{$item}', comma);
-        $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"]#{$item}', comma);
-      }
-      @else {
-        $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"][class*="#{$modifierGlue}#{$item}"]', comma);
-      }
-    }
-  }
-  @else {
-    $selector: append($selector, '.#{$block}', comma);
-    $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"]', comma);
-  }
-
-  @each $item in $selector {
-    @at-root #{$item} & {
+  @at-root #{$selector} {
+    #{$scope} {
       @content;
     }
   }

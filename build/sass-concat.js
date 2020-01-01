@@ -13,6 +13,7 @@ const files = [
   './src/atoms/_visibility.scss',
   // utilities
   './src/utilities/_create-config.scss',
+  './src/utilities/_create-selector-from-context.scss',
   './src/utilities/_css-properties.scss',
   './src/utilities/_enabled.scss',
   './src/utilities/_get-css-from-map.scss',

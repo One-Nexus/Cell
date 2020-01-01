@@ -29,7 +29,7 @@
     $disable-output: map-get($config, 'disable-output');
   }
 
-  // @TODO this needs to identify if nested within itself, not in general
+  // @TODO this needs to identify if nested within itself, not nested in general
   $nested: &;
 
   @if not $nested {
@@ -46,8 +46,7 @@
   }
 
   $targetExists: variable-exists('config') and map-has-key($config, 'target');
-  // @TODO tidy up how $target is used here and in $modifier - also probably
-  // won't work for component()
+  // @TODO tidy up how $target is used here and in $modifier - also probably won't work for component()
   $target: if($targetExists, ('module': $module, 'target': map-get($config, 'target')), false) !global;
 
   @if not $disable-output {
@@ -72,7 +71,7 @@
   @include extend-modifiers;
   @include combine-modifiers;
 
-  @if variable-exists('config') {
+  @if variable-exists('config') and $outputCSSFromConfig {
     @if $module == map-get($config, 'name') or $target {
       @if type-of($target) == 'map' and map-get($target, 'module') == $module {
         #{map-get($target, 'target')} {
