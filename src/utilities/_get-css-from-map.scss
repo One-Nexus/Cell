@@ -46,20 +46,20 @@
       }
 
       /**
-       * @TODO needs to work recursively
+       * Determine if previously specified parent component is queried modifier/state
        */
-      @else if str-index($property, 'and-is-') == 1 {
-        $context: str-replace($property, 'and-is-', '');
+      @else if str-index($property, 'and-is-') == 1 or (str-index($property, ':') and str-index($property, ':') > 1) {
+        $context: if(
+          str-index($property, 'and-is-'), 
+          str-replace($property, 'and-is-', ''), 
+          str-slice($property, str-index($property, ':'), str-length($property))
+        );
         $prevContext: ('block': nth($prevContext, 1), 'context': nth($prevContext, 2));
         $prevChunk: create-selector-from-context(map-get($prevContext, 'block'), map-get($prevContext, 'context'));
         $newContext: append(map-get($prevContext, 'context'), $context);
         $newChunk: create-selector-from-context(map-get($prevContext, 'block'), $newContext, $pipeContexts: true);
 
         $selector: ();
-
-        @debug &;
-        @debug nth($prevChunk, 1);
-        @debug $newChunk;
 
         @each $chunk in selector-parse(str-replace(inspect($newChunk), ' ', ', ')) {
           @each $item in & {
@@ -92,8 +92,13 @@
       */
       @else if str-index($property, 'with-') == 1 {
         $component: str-replace($property, 'with-', '');
+        $context: ($module, $component);
 
-        @include context($component) {
+        @if str-index($component, '$') == 1 {
+          $context: str-slice($component, 2);
+        }
+
+        @include context($context) {
           @include get-css-from-map($value);
         }
       }
