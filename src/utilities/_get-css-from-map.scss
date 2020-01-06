@@ -48,16 +48,16 @@
       /**
        * Determine if previously specified parent component is queried modifier/state
        */
-      @else if str-index($property, 'and-is-') == 1 or (str-index($property, ':') and str-index($property, ':') > 1) {
+      @else if str-index($property, 'and-is-') == 1 or str-index($property, 'and:') == 1 {
         $context: if(
           str-index($property, 'and-is-'), 
           str-replace($property, 'and-is-', ''), 
           str-slice($property, str-index($property, ':'), str-length($property))
         );
-        $prevContext: ('block': nth($prevContext, 1), 'context': nth($prevContext, 2));
-        $prevChunk: create-selector-from-context(map-get($prevContext, 'block'), map-get($prevContext, 'context'));
-        $newContext: append(map-get($prevContext, 'context'), $context);
-        $newChunk: create-selector-from-context(map-get($prevContext, 'block'), $newContext, $pipeContexts: true);
+        $prevContextVal: ('block': nth($prevContext, 1), 'context': nth($prevContext, 2));
+        $prevChunk: create-selector-from-context(map-get($prevContextVal, 'block'), map-get($prevContextVal, 'context'));
+        $newContextVal: append(map-get($prevContextVal, 'context'), $context);
+        $newChunk: create-selector-from-context(map-get($prevContextVal, 'block'), $newContextVal, $pipeContexts: true);
 
         $selector: ();
 
@@ -69,7 +69,7 @@
 
         @at-root {
           #{$selector} {
-            @include get-css-from-map($value, $prevContext: (map-get($prevContext, 'block'), $newContext));
+            @include get-css-from-map($value, $prevContext: (map-get($prevContextVal, 'block'), $newContextVal));
           }
         }
       }
@@ -79,10 +79,12 @@
       */
       @else if str-index($property, '-is-') {
         $component: str-slice($property, 1, str-index($property, '-is-') - 1);
-        $context: str-slice($property, str-index($property, '-is-') + 4, str-length($property));
+        $contextVal: str-slice($property, str-index($property, '-is-') + 4, str-length($property));
+        $block: if(str-index($component, '$') == 1, str-slice($component, 2), $module);
+        $context: if(str-index($component, '$') == 1, ($block, $contextVal), (($block, $component), $contextVal));
 
-        @include context(($module, $component), $context) {
-          @include get-css-from-map($value, $prevContext: (($module, $component), $context));
+        @include context($context...) {
+          @include get-css-from-map($value, $prevContext: $context);
         }
       }
 
@@ -92,11 +94,7 @@
       */
       @else if str-index($property, 'with-') == 1 {
         $component: str-replace($property, 'with-', '');
-        $context: ($module, $component);
-
-        @if str-index($component, '$') == 1 {
-          $context: str-slice($component, 2);
-        }
+        $context: if(str-index($component, '$') == 1, str-slice($component, 2), ($module, $component));
 
         @include context($context) {
           @include get-css-from-map($value);
