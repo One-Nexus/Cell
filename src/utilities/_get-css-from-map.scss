@@ -4,21 +4,27 @@
 @mixin get-css-from-map($map, $sub-component: false, $prevContext: false) {
   @each $property, $value in $map {
     @if type-of($property) == 'string' {
-      // $property defines new Modifier
+      /**
+      * $property defines new Modifier
+      */
       @if str-index($property, 'modifier(') == 1 or str-index($property, $modifierGlue) == 1 {
         @include modifier(get-param($property)) {
           @include get-css-from-map($value);
         }
       }
 
-      // $property defines new Component
+      /**
+      * $property defines new Component
+      */
       @else if str-index($property, 'component(') == 1 or str-index($property, $componentGlue) == 1 {
         @include component(get-param($property)) {
           @include get-css-from-map($value);
         }
       }
 
-      // $property defines new Component
+      /**
+      * $property defines new Component
+      */
       @else if str-index($property, 'sub-component(') == 1 {
         @include sub-component(get-param($property)) {
           @include get-css-from-map($value);
@@ -37,8 +43,8 @@
       /**
       * Determine if parent module/block is queried modifier/state
       */
-      @else if str-index($property, 'block-is-') == 1 or str-index($property, '~') == 1 {
-        $context: if(str-index($property, '~') == 1, str-replace($property, '~', ''), str-replace($property, '~', 'block-is-'));
+      @else if str-index($property, '$-is-') == 1 or str-index($property, '$:') == 1 {
+        $context: if(str-index($property, '$:') == 1, str-replace($property, '$', ''), str-replace($property, '$-is-', ''));
 
         @include context($module, $context) {
           @include get-css-from-map($value);
@@ -75,11 +81,19 @@
       }
 
       /**
-      * Determine if specified parent component is queried modifier/state
+      * Determine if specified parent component/module is queried modifier/state
       */
-      @else if str-index($property, '-is-') {
-        $component: str-slice($property, 1, str-index($property, '-is-') - 1);
-        $contextVal: str-slice($property, str-index($property, '-is-') + 4, str-length($property));
+      @else if str-index($property, '-is-') or (str-index($property, ':') and str-index($property, ':') > 1) {
+        $component: if(
+          str-index($property, ':'),
+          str-slice($property, 1, str-index($property, ':') - 1), 
+          str-slice($property, 1, str-index($property, '-is-') - 1)
+        );
+        $contextVal: if(
+          str-index($property, ':'),
+          str-slice($property, str-index($property, ':'), str-length($property)),
+          str-slice($property, str-index($property, '-is-') + 4, str-length($property))
+        );
         $block: if(str-index($component, '$') == 1, str-slice($component, 2), $module);
         $context: if(str-index($component, '$') == 1, ($block, $contextVal), (($block, $component), $contextVal));
 
@@ -101,21 +115,27 @@
         }
       }
 
-      // $property defines pseudo-state/pseudo-element
+      /**
+      * $property defines pseudo-state/pseudo-element
+      */
       @else if str-index($property, ':') == 1 {
         @include pseudo-state(str-replace($property, ':', '')) {
           @include get-css-from-map($value);
         }
       }
 
-      // $property defines :hover styles
+      /**
+      * $property defines :hover styles
+      */
       @else if $property == ':hover' {
         @include hover {
           @include get-css-from-map($value);
         }
       }
 
-      // $property defines .active styles
+      /**
+      * $property defines .active styles
+      */
       @else if $property == 'active' {
         @include modifier('active') {
           @include get-css-from-map($value);
