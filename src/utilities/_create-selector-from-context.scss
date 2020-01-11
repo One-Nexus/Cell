@@ -1,55 +1,77 @@
 /// Used to create a selector from context() arguments
 ///
-/// @param {string} $block - The name of the module/component that has the context
+/// @param {(string|list)} $block - The name of the module/component that has the context
 /// @param {string} $context - The context you wish to test
 @function create-selector-from-context($block, $context: null, $pipeContexts: false) {
   $selector: ();
   $pipedContexts: '';
   $excludeRootSelector: false;
 
-  @if type-of($block) == 'list' {
-    $block-from-list: false;
-    @each $item in $block {
-      $block-from-list: if($block-from-list, '#{$block-from-list}#{$componentGlue}#{$item}', $item);
-    }
-    $block: $block-from-list;
-  }
-
-  @if $context {
+  @if $pipeContexts {
     @each $item in $context {
-      @if $pipeContexts {
-        @if str-index($item, ':') == 1 {
-          $pipedContexts: $pipedContexts + $item;
-        }
-        @else {
-          $excludeRootSelector: true;
-          $pipedContexts: $pipedContexts + '[class*="#{$modifierGlue}#{$item}"]';
-        }
+      @if str-index($item, ':') == 1 {
+        $pipedContexts: $pipedContexts + $item;
       }
       @else {
+        $excludeRootSelector: true;
+        $pipedContexts: $pipedContexts + '[class*="#{$modifierGlue}#{$item}"]';
+      }
+    }
+    @if type-of($block) == 'string' and not $excludeRootSelector {
+      $selector: '.#{$block}#{$pipedContexts}, [class*="#{$block}#{$modifierGlue}"]#{$pipedContexts}';
+    }
+    @else {
+      $selector: '#{generate-chunk($block)}#{$pipedContexts}';
+    }
+  }
+
+  @else {
+    @if $context {
+      @each $item in $context {
         @if str-index($item, ':') == 1 {
-          $selector: append($selector, '.#{$block}#{$item}', comma);
-          $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"]#{$item}', comma);
+          @if type-of($block) == 'string' {
+            $selector: append($selector, '.#{$block}#{$item}', comma);
+          }
+          $selector: append($selector, '#{generate-chunk($block)}#{$item}', comma);
         }
         @else {
-          $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"][class*="#{$modifierGlue}#{$item}"]', comma);
+          $selector: append($selector, '#{generate-chunk($block)}[class*="#{$modifierGlue}#{$item}"]', comma);
         }
       }
     }
-  }
-  @else {
-    $selector: append($selector, '.#{$block}', comma);
-    $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"]', comma);
-  }
-
-  @if $pipeContexts {
-    @if $excludeRootSelector {
-      $selector: '[class*="#{$block}#{$modifierGlue}"]#{$pipedContexts}';
-    }
     @else {
-      $selector: '.#{$block}#{$pipedContexts}, [class*="#{$block}#{$modifierGlue}"]#{$pipedContexts}';
+      @if type-of($block) == 'string' {
+        $selector: append($selector, '.#{$block}', comma);
+        $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"]', comma);
+      }
+      @else {
+        $selector: append($selector, generate-chunk($block), comma);
+      }
     }
   }
 
   @return $selector;
+}
+
+/// Generate a selector chunk from a $block list
+///
+/// @param {(string|list)} $block
+@function generate-chunk($block) {
+  $chunk: '';
+
+  @if type-of($block) == 'list' {
+    @for $i from 1 through length($block) {
+      @if $i == 1 {
+        $chunk: $chunk + '[class*="#{nth($block, $i)}#{$componentGlue}"]';
+      }
+      @else {
+        $chunk: $chunk + '[class*="#{$componentGlue}#{nth($block, $i)}"]';
+      }
+    }
+  }
+  @else {
+    $chunk: '[class*="#{$block}#{$modifierGlue}"]';
+  }
+
+  @return $chunk;
 }
