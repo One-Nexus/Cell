@@ -1,8 +1,8 @@
 /// Wrap a module or group a collection of modules
-@mixin wrapper($namespace: 'wrapper') {
+@mixin wrapper($namespace: 'wrapper', $scope: $module) {
   @at-root {
     @include module($namespace) {
-      @include modifier($module, $module: $namespace) {
+      @include modifier($scope, $module: $namespace) {
         @content;
       }
     }

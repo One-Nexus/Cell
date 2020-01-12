@@ -25,6 +25,13 @@
         }
       }
 
+      // $property is for parent wrapper/group element
+      @else if $property == 'group' or $property == 'wrapper' {
+        @include wrapper($property, if($prevContext, $prevContext, $module)) {
+          @include get-css-from-map($value);
+        }
+      }
+
       // Determine if current node is queried modifier/state
       @else if str-index($property, 'is-') == 1 {
         @include modifier(str-replace($property, 'is-', '')) {
@@ -119,9 +126,10 @@
         }
       }
 
+      // $property is for a component
       @else if type-of($value) == 'map' {
         @include component($property, $sub-component: $sub-component) {
-          @include get-css-from-map($value, $sub-component: true);
+          @include get-css-from-map($value, $sub-component: true, $prevContext: $property);
         }
       }
 
