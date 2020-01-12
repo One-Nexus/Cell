@@ -10,8 +10,8 @@
 }
 
 /// Alias for wrapper() mixin
-@mixin group() {
-  @include wrapper('group') {
+@mixin group($scope: $module) {
+  @include wrapper('group', $scope) {
     @content;
   }
 }

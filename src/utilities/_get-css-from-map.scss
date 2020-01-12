@@ -44,7 +44,7 @@
         $context: if(str-index($property, '$:') == 1, str-replace($property, '$', ''), str-replace($property, '$-is-', ''));
 
         @include context($module, $context) {
-          @include get-css-from-map($value);
+          @include get-css-from-map($value, $prevContext: ($module, $context));
         }
       }
 
@@ -62,9 +62,15 @@
 
         $selector: ();
 
-        @each $chunk in selector-parse(str-replace(inspect($newChunk), ' ', ', ')) {
-          @each $item in & {
-            $selector: append($selector, selector-replace($item, nth($prevChunk, 1), $chunk), comma);
+        @each $pChunk in $prevChunk {
+          @each $chunk in selector-parse(str-replace(inspect($newChunk), ' ', ', ')) {
+            @if str-index(inspect($chunk), $pChunk) == 1 {
+              @each $item in & {
+                @if str-index(inspect($item), $pChunk) {
+                  $selector: append($selector, selector-replace($item, $pChunk, $chunk), comma);
+                }
+              }
+            }
           }
         }
 
