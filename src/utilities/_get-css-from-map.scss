@@ -96,6 +96,10 @@
         $block: if(str-index($component, '$') == 1, str-slice($component, 2), $module);
         $context: if(str-index($component, '$') == 1, ($block, $contextVal), (($block, $component), $contextVal));
 
+        @if $component == 'group' or $component == 'wrapper' {
+          $context: ($component, ($prevContext, $contextVal), true);
+        }
+
         @include context($context...) {
           @include get-css-from-map($value, $prevContext: $context);
         }
