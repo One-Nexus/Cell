@@ -122,13 +122,6 @@
         }
       }
 
-      // $property defines :hover styles
-      @else if $property == ':hover' {
-        @include hover {
-          @include get-css-from-map($value);
-        }
-      }
-
       // $property defines .active styles
       @else if $property == 'active' {
         @include modifier('active') {
@@ -146,6 +139,11 @@
       // $property is a valid CSS property
       @else if index($css-properties, $property) {
         @if type-of($value) != 'map' {
+          // for before/after pseudo elements
+          @if $property == 'content' {
+            $value: '"#{$value}"';
+          }
+
           #{$property}: $value;
         }
       }
