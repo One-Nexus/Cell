@@ -1,41 +1,41 @@
 /// Get CSS from Sass map
 ///
 /// @param {map} $map - The map from which to get CSS
-@mixin get-css-from-map($map, $sub-component: false, $prevContext: false) {
+@mixin parse-cq($map, $sub-component: false, $prevContext: false) {
   @each $property, $value in $map {
     @if type-of($property) == 'string' {
       // $property defines new Modifier
       @if str-index($property, 'modifier(') == 1 or str-index($property, $modifierGlue) == 1 {
         @include modifier(get-param($property)) {
-          @include get-css-from-map($value);
+          @include parse-cq($value);
         }
       }
 
       // $property defines new Component
       @else if str-index($property, 'component(') == 1 or str-index($property, $componentGlue) == 1 {
         @include component(get-param($property)) {
-          @include get-css-from-map($value);
+          @include parse-cq($value);
         }
       }
 
       // $property defines new Component
       @else if str-index($property, 'sub-component(') == 1 {
         @include sub-component(get-param($property)) {
-          @include get-css-from-map($value);
+          @include parse-cq($value);
         }
       }
 
       // $property is for parent wrapper/group element
       @else if $property == 'group' or $property == 'wrapper' {
         @include wrapper($property, if($prevContext, $prevContext, $module)) {
-          @include get-css-from-map($value);
+          @include parse-cq($value);
         }
       }
 
       // Determine if current node is queried modifier/state
       @else if str-index($property, 'is-') == 1 {
         @include modifier(str-replace($property, 'is-', '')) {
-          @include get-css-from-map($value);
+          @include parse-cq($value);
         }
       }
 
@@ -44,7 +44,7 @@
         $context: if(str-index($property, '$:') == 1, str-replace($property, '$', ''), str-replace($property, '$-is-', ''));
 
         @include context($module, $context) {
-          @include get-css-from-map($value, $prevContext: ($module, $context));
+          @include parse-cq($value, $prevContext: ($module, $context));
         }
       }
 
@@ -76,7 +76,7 @@
 
         @at-root {
           #{$selector} {
-            @include get-css-from-map($value, $prevContext: (map-get($prevContextVal, 'block'), $newContextVal));
+            @include parse-cq($value, $prevContext: (map-get($prevContextVal, 'block'), $newContextVal));
           }
         }
       }
@@ -101,7 +101,7 @@
         }
 
         @include context($context...) {
-          @include get-css-from-map($value, $prevContext: $context);
+          @include parse-cq($value, $prevContext: $context);
         }
       }
 
@@ -111,28 +111,28 @@
         $context: if(str-index($component, '$') == 1, str-slice($component, 2), ($module, $component));
 
         @include context($context) {
-          @include get-css-from-map($value);
+          @include parse-cq($value);
         }
       }
 
       // $property defines pseudo-state/pseudo-element
       @else if str-index($property, ':') == 1 {
         @include pseudo-state(str-replace($property, ':', '')) {
-          @include get-css-from-map($value);
+          @include parse-cq($value);
         }
       }
 
       // $property defines .active styles
       @else if $property == 'active' {
         @include modifier('active') {
-          @include get-css-from-map($value);
+          @include parse-cq($value);
         }
       }
 
       // $property is for a component
       @else if type-of($value) == 'map' {
         @include component($property, $sub-component: $sub-component) {
-          @include get-css-from-map($value, $sub-component: true, $prevContext: $property);
+          @include parse-cq($value, $sub-component: true, $prevContext: $property);
         }
       }
 

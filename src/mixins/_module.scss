@@ -57,7 +57,7 @@
 
       @content;
 
-      @include get-css-from-map($content);
+      @include parse-cq($content);
     }
   }
 }
@@ -75,11 +75,11 @@
     @if $module == map-get($config, 'name') or $target {
       @if type-of($target) == 'map' and map-get($target, 'module') == $module {
         #{map-get($target, 'target')} {
-          @include get-css-from-map($config);
+          @include parse-cq($config);
         }
       }
       @else {
-        @include get-css-from-map($config);
+        @include parse-cq($config);
       }
     }
   }

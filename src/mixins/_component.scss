@@ -74,7 +74,7 @@
     @at-root #{$selectors} {
       @content;
 
-      @include get-css-from-map($content);
+      @include parse-cq($content);
     }
   }
   @else {
@@ -82,7 +82,7 @@
       #{$selectors} {
         @content;
 
-        @include get-css-from-map($content);
+        @include parse-cq($content);
       }
     }
   }

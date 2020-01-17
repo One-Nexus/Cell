@@ -1666,142 +1666,6 @@ $css-properties: (
     @return $false-value;
   }
 }
-/// Get CSS from Sass map
-///
-/// @param {map} $map - The map from which to get CSS
-@mixin get-css-from-map($map, $sub-component: false, $prevContext: false) {
-  @each $property, $value in $map {
-    @if type-of($property) == 'string' {
-      // $property defines new Modifier
-      @if str-index($property, 'modifier(') == 1 or str-index($property, $modifierGlue) == 1 {
-        @include modifier(get-param($property)) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // $property defines new Component
-      @else if str-index($property, 'component(') == 1 or str-index($property, $componentGlue) == 1 {
-        @include component(get-param($property)) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // $property defines new Component
-      @else if str-index($property, 'sub-component(') == 1 {
-        @include sub-component(get-param($property)) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // Determine if current node is queried modifier/state
-      @else if str-index($property, 'is-') == 1 {
-        @include modifier(str-replace($property, 'is-', '')) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // Determine if parent module/block is queried modifier/state
-      @else if str-index($property, '$-is-') == 1 or str-index($property, '$:') == 1 {
-        $context: if(str-index($property, '$:') == 1, str-replace($property, '$', ''), str-replace($property, '$-is-', ''));
-
-        @include context($module, $context) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // Determine if previously specified parent component is queried modifier/state
-      @else if str-index($property, 'and-is-') == 1 or str-index($property, 'and:') == 1 {
-        $context: if(
-          str-index($property, 'and-is-'),
-          str-replace($property, 'and-is-', ''),
-          str-slice($property, str-index($property, ':'), str-length($property))
-        );
-        $prevContextVal: ('block': nth($prevContext, 1), 'context': nth($prevContext, 2));
-        $prevChunk: create-selector-from-context(map-get($prevContextVal, 'block'), map-get($prevContextVal, 'context'));
-        $newContextVal: append(map-get($prevContextVal, 'context'), $context);
-        $newChunk: create-selector-from-context(map-get($prevContextVal, 'block'), $newContextVal, $pipeContexts: true);
-
-        $selector: ();
-
-        @each $chunk in selector-parse(str-replace(inspect($newChunk), ' ', ', ')) {
-          @each $item in & {
-            $selector: append($selector, selector-replace($item, nth($prevChunk, 1), $chunk), comma);
-          }
-        }
-
-        @at-root {
-          #{$selector} {
-            @include get-css-from-map($value, $prevContext: (map-get($prevContextVal, 'block'), $newContextVal));
-          }
-        }
-      }
-
-      // Determine if specified parent component/module is queried modifier/state
-      @else if str-index($property, '-is-') or (str-index($property, ':') and str-index($property, ':') > 1) {
-        $component: if(
-          str-index($property, ':'),
-          str-slice($property, 1, str-index($property, ':') - 1),
-          str-slice($property, 1, str-index($property, '-is-') - 1)
-        );
-        $contextVal: if(
-          str-index($property, ':'),
-          str-slice($property, str-index($property, ':'), str-length($property)),
-          str-slice($property, str-index($property, '-is-') + 4, str-length($property))
-        );
-        $block: if(str-index($component, '$') == 1, str-slice($component, 2), $module);
-        $context: if(str-index($component, '$') == 1, ($block, $contextVal), (($block, $component), $contextVal));
-
-        @include context($context...) {
-          @include get-css-from-map($value, $prevContext: $context);
-        }
-      }
-
-      // Determine if current node is a child of the queried component/module
-      @else if str-index($property, 'with-') == 1 {
-        $component: str-replace($property, 'with-', '');
-        $context: if(str-index($component, '$') == 1, str-slice($component, 2), ($module, $component));
-
-        @include context($context) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // $property defines pseudo-state/pseudo-element
-      @else if str-index($property, ':') == 1 {
-        @include pseudo-state(str-replace($property, ':', '')) {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // $property defines :hover styles
-      @else if $property == ':hover' {
-        @include hover {
-          @include get-css-from-map($value);
-        }
-      }
-
-      // $property defines .active styles
-      @else if $property == 'active' {
-        @include modifier('active') {
-          @include get-css-from-map($value);
-        }
-      }
-
-      @else if type-of($value) == 'map' {
-        @include component($property, $sub-component: $sub-component) {
-          @include get-css-from-map($value, $sub-component: true);
-        }
-      }
-
-      // $property is a valid CSS property
-      @else if index($css-properties, $property) {
-        @if type-of($value) != 'map' {
-          #{$property}: $value;
-        }
-      }
-    }
-  }
-}
 /// Get the name of a module from a namespace
 ///
 /// @param {string} $namespace
@@ -1940,6 +1804,158 @@ $css-properties: (
   }
 
   @return $selector;
+}
+/// Get CSS from Sass map
+///
+/// @param {map} $map - The map from which to get CSS
+@mixin parse-cq($map, $sub-component: false, $prevContext: false) {
+  @each $property, $value in $map {
+    @if type-of($property) == 'string' {
+      // $property defines new Modifier
+      @if str-index($property, 'modifier(') == 1 or str-index($property, $modifierGlue) == 1 {
+        @include modifier(get-param($property)) {
+          @include parse-cq($value);
+        }
+      }
+
+      // $property defines new Component
+      @else if str-index($property, 'component(') == 1 or str-index($property, $componentGlue) == 1 {
+        @include component(get-param($property)) {
+          @include parse-cq($value);
+        }
+      }
+
+      // $property defines new Component
+      @else if str-index($property, 'sub-component(') == 1 {
+        @include sub-component(get-param($property)) {
+          @include parse-cq($value);
+        }
+      }
+
+      // $property is for parent wrapper/group element
+      @else if $property == 'group' or $property == 'wrapper' {
+        @include wrapper($property, if($prevContext, $prevContext, $module)) {
+          @include parse-cq($value);
+        }
+      }
+
+      // Determine if current node is queried modifier/state
+      @else if str-index($property, 'is-') == 1 {
+        @include modifier(str-replace($property, 'is-', '')) {
+          @include parse-cq($value);
+        }
+      }
+
+      // Determine if parent module/block is queried modifier/state
+      @else if str-index($property, '$-is-') == 1 or str-index($property, '$:') == 1 {
+        $context: if(str-index($property, '$:') == 1, str-replace($property, '$', ''), str-replace($property, '$-is-', ''));
+
+        @include context($module, $context) {
+          @include parse-cq($value, $prevContext: ($module, $context));
+        }
+      }
+
+      // Determine if previously specified parent component is queried modifier/state
+      @else if str-index($property, 'and-is-') == 1 or str-index($property, 'and:') == 1 {
+        $context: if(
+          str-index($property, 'and-is-'),
+          str-replace($property, 'and-is-', ''),
+          str-slice($property, str-index($property, ':'), str-length($property))
+        );
+        $prevContextVal: ('block': nth($prevContext, 1), 'context': nth($prevContext, 2));
+        $prevChunk: create-selector-from-context(map-get($prevContextVal, 'block'), map-get($prevContextVal, 'context'));
+        $newContextVal: append(map-get($prevContextVal, 'context'), $context);
+        $newChunk: create-selector-from-context(map-get($prevContextVal, 'block'), $newContextVal, $pipeContexts: true);
+
+        $selector: ();
+
+        @each $pChunk in $prevChunk {
+          @each $chunk in selector-parse(str-replace(inspect($newChunk), ' ', ', ')) {
+            @if str-index(inspect($chunk), $pChunk) == 1 {
+              @each $item in & {
+                @if str-index(inspect($item), $pChunk) {
+                  $selector: append($selector, selector-replace($item, $pChunk, $chunk), comma);
+                }
+              }
+            }
+          }
+        }
+
+        @at-root {
+          #{$selector} {
+            @include parse-cq($value, $prevContext: (map-get($prevContextVal, 'block'), $newContextVal));
+          }
+        }
+      }
+
+      // Determine if specified parent component/module is queried modifier/state
+      @else if str-index($property, '-is-') or (str-index($property, ':') and str-index($property, ':') > 1) {
+        $component: if(
+          str-index($property, ':'),
+          str-slice($property, 1, str-index($property, ':') - 1),
+          str-slice($property, 1, str-index($property, '-is-') - 1)
+        );
+        $contextVal: if(
+          str-index($property, ':'),
+          str-slice($property, str-index($property, ':'), str-length($property)),
+          str-slice($property, str-index($property, '-is-') + 4, str-length($property))
+        );
+        $block: if(str-index($component, '$') == 1, str-slice($component, 2), $module);
+        $context: if(str-index($component, '$') == 1, ($block, $contextVal), (($block, $component), $contextVal));
+
+        @if $component == 'group' or $component == 'wrapper' {
+          $context: ($component, ($prevContext, $contextVal), true);
+        }
+
+        @include context($context...) {
+          @include parse-cq($value, $prevContext: $context);
+        }
+      }
+
+      // Determine if current node is a child of the queried component/module
+      @else if str-index($property, 'with-') == 1 {
+        $component: str-replace($property, 'with-', '');
+        $context: if(str-index($component, '$') == 1, str-slice($component, 2), ($module, $component));
+
+        @include context($context) {
+          @include parse-cq($value);
+        }
+      }
+
+      // $property defines pseudo-state/pseudo-element
+      @else if str-index($property, ':') == 1 {
+        @include pseudo-state(str-replace($property, ':', '')) {
+          @include parse-cq($value);
+        }
+      }
+
+      // $property defines .active styles
+      @else if $property == 'active' {
+        @include modifier('active') {
+          @include parse-cq($value);
+        }
+      }
+
+      // $property is for a component
+      @else if type-of($value) == 'map' {
+        @include component($property, $sub-component: $sub-component) {
+          @include parse-cq($value, $sub-component: true, $prevContext: $property);
+        }
+      }
+
+      // $property is a valid CSS property
+      @else if index($css-properties, $property) {
+        @if type-of($value) != 'map' {
+          // for before/after pseudo elements
+          @if $property == 'content' {
+            $value: '"#{$value}"';
+          }
+
+          #{$property}: $value;
+        }
+      }
+    }
+  }
 }
 /// Convert a selector into a map of modules, components and modifiers
 ///
@@ -2125,7 +2141,7 @@ $css-properties: (
 
       @content;
 
-      @include get-css-from-map($content);
+      @include parse-cq($content);
     }
   }
 }
@@ -2143,11 +2159,11 @@ $css-properties: (
     @if $module == map-get($config, 'name') or $target {
       @if type-of($target) == 'map' and map-get($target, 'module') == $module {
         #{map-get($target, 'target')} {
-          @include get-css-from-map($config);
+          @include parse-cq($config);
         }
       }
       @else {
-        @include get-css-from-map($config);
+        @include parse-cq($config);
       }
     }
   }
@@ -2259,7 +2275,7 @@ $css-properties: (
     @at-root #{$selectors} {
       @content;
 
-      @include get-css-from-map($content);
+      @include parse-cq($content);
     }
   }
   @else {
@@ -2267,7 +2283,7 @@ $css-properties: (
       #{$selectors} {
         @content;
 
-        @include get-css-from-map($content);
+        @include parse-cq($content);
       }
     }
   }
@@ -2306,31 +2322,39 @@ $css-properties: (
 ///     }
 ///   }
 @mixin modifier($modifiers, $special: null, $glue: $modifierGlue, $module: $module) {
-  $selectors: &;
+  $scope: &;
 
   @if str-index(inspect(&), '.#{$module}') {
-    $selectors: ();
+    $scope: ();
 
     @for $i from 1 through length(&) {
       @if $i % 2 == 0 {
-        $selectors: append($selectors, nth(&, $i), comma);
+        $scope: append($scope, nth(&, $i), comma);
       }
     }
   }
 
-  @at-root #{$selectors} {
-    $modifier-selectors: ();
+  $modifiers-chunk: ();
 
-    @each $modifier in $modifiers {
-      @if $special == 'not' {
-        $modifier-selectors: join($modifier-selectors, '&:not([class*="#{$glue}#{$modifier}"])', comma);
-      }
-      @else {
-        $modifier-selectors: join($modifier-selectors, '&[class*="#{$glue}#{$modifier}"]', comma);
-      }
+  @each $modifier in $modifiers {
+    @if $special == 'not' {
+      $modifiers-chunk: join($modifiers-chunk, ':not([class*="#{$glue}#{$modifier}"])', comma);
+    }
+    @else {
+      $modifiers-chunk: join($modifiers-chunk, '[class*="#{$glue}#{$modifier}"]', comma);
     }
 
-    @at-root #{$modifier-selectors} {
+    $selector: #{$scope}#{$modifiers-chunk};
+
+    // pseudo-elements must be at the end
+    @if str-index($selector, ':before') and str-index($selector, ':before') != (str-length($selector) - 6) {
+      $selector: str-replace($selector, ':before', '') + ':before';
+    }
+    @if str-index($selector, ':after') and str-index($selector, ':after') != (str-length($selector) - 5) {
+      $selector: str-replace($selector, ':after', '') + ':after';
+    }
+
+    @at-root #{$selector} {
       @content;
     }
   }
@@ -2435,7 +2459,7 @@ $css-properties: (
   @if value-enabled($value) {
     @content;
 
-    @include get-css-from-map($value);
+    @include parse-cq($value);
   }
 
   // Create a modifier for the option if it is not enabled
@@ -2444,7 +2468,7 @@ $css-properties: (
     @include modifier($option) {
       @content;
 
-      @include get-css-from-map($value);
+      @include parse-cq($value);
     }
   }
 }
@@ -2452,7 +2476,26 @@ $css-properties: (
 ///
 /// @param {string} $state
 @mixin pseudo-state($state) {
-  &:#{$state} {
+  $scope: &;
+  $selector: ();
+
+  @each $item in $scope {
+    $chunk: '#{$item}:#{$state}';
+
+    // pseudo-elements must be at the end
+    @if str-index($chunk, ':before') and str-index($chunk, ':before') != (str-length($chunk) - 5) {
+      $chunk: str-replace($chunk, ':before', '') + ':before';
+    }
+    @if str-index($chunk, ':after') and str-index($chunk, ':after') != (str-length($chunk) - 5) {
+      $chunk: str-replace($chunk, ':after', '') + ':after';
+    }
+
+    $selector: append($selector, $chunk, comma);
+  }
+
+  @debug $selector;
+
+  @at-root #{$selector} {
     @content;
   }
 }
@@ -2502,10 +2545,10 @@ $css-properties: (
   }
 }
 /// Wrap a module or group a collection of modules
-@mixin wrapper($namespace: 'wrapper') {
+@mixin wrapper($namespace: 'wrapper', $scope: $module) {
   @at-root {
     @include module($namespace) {
-      @include modifier($module, $module: $namespace) {
+      @include modifier($scope, $module: $namespace) {
         @content;
       }
     }
@@ -2513,8 +2556,8 @@ $css-properties: (
 }
 
 /// Alias for wrapper() mixin
-@mixin group() {
-  @include wrapper('group') {
+@mixin group($scope: $module) {
+  @include wrapper('group', $scope) {
     @content;
   }
 }
