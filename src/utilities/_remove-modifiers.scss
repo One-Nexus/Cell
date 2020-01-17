@@ -1,6 +1,6 @@
 /// Remove modifiers from a selector
 ///
-/// @param {list} $selectors - The selector from which to remove modifiers
+/// @param {list} $selector - The selector from which to remove modifiers
 @function remove-modifiers($selector) {
   // convert selector to a string
   $selector: inspect(nth($selector, 1));

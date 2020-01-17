@@ -1,6 +1,8 @@
-/// Get CSS from Sass map
+/// Parse CQ
 ///
-/// @param {map} $map - The map from which to get CSS
+/// @param {map} $map - The map from which to parse CQ
+/// @param {bool} $sub-component
+/// @param {bool} $prevContext
 @mixin parse-cq($map, $sub-component: false, $prevContext: false) {
   @each $property, $value in $map {
     @if type-of($property) == 'string' {

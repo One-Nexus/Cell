@@ -1,19 +1,6 @@
 /// Apply styles when a defined option is a particular value
 ///
 /// @param $value - The value you wish to apply styles to
-///
-/// @example
-///   $config: (
-///     side : false
-///   );
-///
-///   @include module(header) {
-///     @include option(side) {
-///       @include value(left) {
-///           ...
-///       }
-///     }
-///   }
 @mixin value($value) {
   // Create a unique, random placeholder to store styles
   $placeholder : $value + random(9999);

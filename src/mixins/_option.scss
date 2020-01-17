@@ -1,17 +1,6 @@
 /// Apply styles to a module if a passed option returns true
 ///
 /// @param {arglist} $option-path - The option which you wish to test against
-///
-/// @example
-///   $config: (
-///     fullscreen : false
-///   );
-///
-///   @include module('billboard') {
-///     @include option('fullscreen') {
-///       ...
-///     }
-///   }
 @mixin option($option-path...) {
   $value  : map-get-deep($config, $option-path...);
   $option : nth($option-path, length($option-path)) !global;

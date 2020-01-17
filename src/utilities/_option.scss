@@ -1,9 +1,6 @@
 /// Return the value of a module's option
 ///
 /// @alias map-get-deep
-///
-/// @example
-///     option($blockquote, 'icon', 'left')
 @function option($args...) {
   @return map-get-deep($args...);
 }

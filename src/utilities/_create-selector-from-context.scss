@@ -2,6 +2,7 @@
 ///
 /// @param {(string|list)} $block - The name of the module/component that has the context
 /// @param {string} $context - The context you wish to test
+/// @param {bool} $pipeContexts
 @function create-selector-from-context($block, $context: null, $pipeContexts: false) {
   $selector: ();
   $pipedContexts: '';

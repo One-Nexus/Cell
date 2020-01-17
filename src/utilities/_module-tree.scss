@@ -1,6 +1,6 @@
 /// Create a namespace tree from a passed selector
 ///
-/// @param {list} $selectors - The selector from which to create the module tree
+/// @param {list} $selector - The selector from which to create the module tree
 @function module-tree($selector) {
   $parent-module: $module;
 

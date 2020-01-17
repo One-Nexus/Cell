@@ -4,19 +4,6 @@
 /// @param {string|list} $modifiers [null] - The modifiers which you wish to combine
 /// @param {string} $parent [null] - The parent module if not current one
 /// @param {bool} $core [false] - Extend the core '.module' styles?
-///
-/// @example
-///   @include module(button) {
-///     @include modifier('round')   {...}
-///     @include modifier('large')   {...}
-///     @include modifier('success') {...}
-///
-///     @include modifier('primary') {
-///       @include extend(('round', 'large', 'success'));
-///     }
-///   }
-///
-///   <div class="button-primary">...</div>
 @mixin extend($modifiers: null, $parent: null, $core: false) {
   $namespaced-parent: if($moduleNamespace and $parent, $moduleNamespace + $parent, $parent);
 

@@ -1,13 +1,7 @@
 /// Create a new module
 ///
 /// @param {string|list} $modules - The module(s) you wish to create
-///
-/// @example
-///   @include module('header') {
-///     ...
-///   }
-///
-///   <div class="header">...</div>
+/// @param {map} $content
 @mixin module(
   $modules: if(variable-exists('config'), (map-get($config, 'name')), ''),
   $content: ()

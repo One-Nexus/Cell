@@ -3,13 +3,7 @@
 /// @param {string|list} $modifiers  - The modifier(s) which you wish to create
 /// @param {string} $special [null] - Add special contextual options to modifier
 /// @param {bool} $glue ['--'] - Desired modifier separator/glue
-///
-/// @example
-///   @include module('button') {
-///     @include modifier('large') {
-///       ...
-///     }
-///   }
+/// @param {string} $module
 @mixin modifier($modifiers, $special: null, $glue: $modifierGlue, $module: $module) {
   $scope: &;
 

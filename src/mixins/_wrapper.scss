@@ -1,4 +1,7 @@
 /// Wrap a module or group a collection of modules
+///
+/// @param {string} $namespace
+/// @param {string} $scope
 @mixin wrapper($namespace: 'wrapper', $scope: $module) {
   @at-root {
     @include module($namespace) {

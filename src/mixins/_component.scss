@@ -1,13 +1,10 @@
 /// Create a component based off the main module
 ///
 /// @param {string|list} $components - The component or components to be used
-///
-/// @example
-///   @include module('header') {
-///     @include component('wrapper') {
-///         ...
-///     }
-///   }
+/// @param {map} $content
+/// @param {bool} $sub-component
+/// @param {string} $glue
+/// @param {bool} $cascade
 @mixin component(
   $components: null,
   $content: (),

@@ -1,6 +1,7 @@
 /// Merge maps containing module/component CSS
 ///
-/// @param {string|list} $option - the desired option
+/// @param {map} $source
+/// @param {map} $target
 @function merge-css-maps($source, $target) {
   $content: map-merge-deep($source, $target);
 
