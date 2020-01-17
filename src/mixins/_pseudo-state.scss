@@ -19,8 +19,6 @@
     $selector: append($selector, $chunk, comma);
   }
 
-  @debug $selector;
-
   @at-root #{$selector} {
     @content;
   }
