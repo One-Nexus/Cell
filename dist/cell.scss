@@ -486,6 +486,7 @@ $module: null !default;
 ///
 /// @param {(string|list)} $block - The name of the module/component that has the context
 /// @param {string} $context - The context you wish to test
+/// @param {bool} $pipeContexts
 @function create-selector-from-context($block, $context: null, $pipeContexts: false) {
   $selector: ();
   $pipedContexts: '';
@@ -1712,7 +1713,8 @@ $css-properties: (
 }
 /// Merge maps containing module/component CSS
 ///
-/// @param {string|list} $option - the desired option
+/// @param {map} $source
+/// @param {map} $target
 @function merge-css-maps($source, $target) {
   $content: map-merge-deep($source, $target);
 
@@ -1740,7 +1742,7 @@ $css-properties: (
 }
 /// Create a namespace tree from a passed selector
 ///
-/// @param {list} $selectors - The selector from which to create the module tree
+/// @param {list} $selector - The selector from which to create the module tree
 @function module-tree($selector) {
   $parent-module: $module;
 
@@ -1759,9 +1761,6 @@ $css-properties: (
 /// Return the value of a module's option
 ///
 /// @alias map-get-deep
-///
-/// @example
-///     option($blockquote, 'icon', 'left')
 @function option($args...) {
   @return map-get-deep($args...);
 }
@@ -1778,7 +1777,7 @@ $css-properties: (
 }
 /// Remove modifiers from a selector
 ///
-/// @param {list} $selectors - The selector from which to remove modifiers
+/// @param {list} $selector - The selector from which to remove modifiers
 @function remove-modifiers($selector) {
   // convert selector to a string
   $selector: inspect(nth($selector, 1));
@@ -1805,9 +1804,11 @@ $css-properties: (
 
   @return $selector;
 }
-/// Get CSS from Sass map
+/// Parse CQ
 ///
-/// @param {map} $map - The map from which to get CSS
+/// @param {map} $map - The map from which to parse CQ
+/// @param {bool} $sub-component
+/// @param {bool} $prevContext
 @mixin parse-cq($map, $sub-component: false, $prevContext: false) {
   @each $property, $value in $map {
     @if type-of($property) == 'string' {
@@ -1913,8 +1914,8 @@ $css-properties: (
       }
 
       // Determine if current node is a child of the queried component/module
-      @else if str-index($property, 'with-') == 1 {
-        $component: str-replace($property, 'with-', '');
+      @else if str-index($property, 'in-') == 1 {
+        $component: str-replace($property, 'in-', '');
         $context: if(str-index($component, '$') == 1, str-slice($component, 2), ($module, $component));
 
         @include context($context) {
@@ -2085,13 +2086,7 @@ $css-properties: (
 /// Create a new module
 ///
 /// @param {string|list} $modules - The module(s) you wish to create
-///
-/// @example
-///   @include module('header') {
-///     ...
-///   }
-///
-///   <div class="header">...</div>
+/// @param {map} $content
 @mixin module(
   $modules: if(variable-exists('config'), (map-get($config, 'name')), ''),
   $content: ()
@@ -2202,13 +2197,10 @@ $css-properties: (
 /// Create a component based off the main module
 ///
 /// @param {string|list} $components - The component or components to be used
-///
-/// @example
-///   @include module('header') {
-///     @include component('wrapper') {
-///         ...
-///     }
-///   }
+/// @param {map} $content
+/// @param {bool} $sub-component
+/// @param {string} $glue
+/// @param {bool} $cascade
 @mixin component(
   $components: null,
   $content: (),
@@ -2314,13 +2306,7 @@ $css-properties: (
 /// @param {string|list} $modifiers  - The modifier(s) which you wish to create
 /// @param {string} $special [null] - Add special contextual options to modifier
 /// @param {bool} $glue ['--'] - Desired modifier separator/glue
-///
-/// @example
-///   @include module('button') {
-///     @include modifier('large') {
-///       ...
-///     }
-///   }
+/// @param {string} $module
 @mixin modifier($modifiers, $special: null, $glue: $modifierGlue, $module: $module) {
   $scope: &;
 
@@ -2379,19 +2365,6 @@ $css-properties: (
 /// @param {string|list} $modifiers [null] - The modifiers which you wish to combine
 /// @param {string} $parent [null] - The parent module if not current one
 /// @param {bool} $core [false] - Extend the core '.module' styles?
-///
-/// @example
-///   @include module(button) {
-///     @include modifier('round')   {...}
-///     @include modifier('large')   {...}
-///     @include modifier('success') {...}
-///
-///     @include modifier('primary') {
-///       @include extend(('round', 'large', 'success'));
-///     }
-///   }
-///
-///   <div class="button-primary">...</div>
 @mixin extend($modifiers: null, $parent: null, $core: false) {
   $namespaced-parent: if($moduleNamespace and $parent, $moduleNamespace + $parent, $parent);
 
@@ -2440,17 +2413,6 @@ $css-properties: (
 /// Apply styles to a module if a passed option returns true
 ///
 /// @param {arglist} $option-path - The option which you wish to test against
-///
-/// @example
-///   $config: (
-///     fullscreen : false
-///   );
-///
-///   @include module('billboard') {
-///     @include option('fullscreen') {
-///       ...
-///     }
-///   }
 @mixin option($option-path...) {
   $value  : map-get-deep($config, $option-path...);
   $option : nth($option-path, length($option-path)) !global;
@@ -2509,19 +2471,6 @@ $css-properties: (
 /// Apply styles when a defined option is a particular value
 ///
 /// @param $value - The value you wish to apply styles to
-///
-/// @example
-///   $config: (
-///     side : false
-///   );
-///
-///   @include module(header) {
-///     @include option(side) {
-///       @include value(left) {
-///           ...
-///       }
-///     }
-///   }
 @mixin value($value) {
   // Create a unique, random placeholder to store styles
   $placeholder : $value + random(9999);
@@ -2545,6 +2494,9 @@ $css-properties: (
   }
 }
 /// Wrap a module or group a collection of modules
+///
+/// @param {string} $namespace
+/// @param {string} $scope
 @mixin wrapper($namespace: 'wrapper', $scope: $module) {
   @at-root {
     @include module($namespace) {

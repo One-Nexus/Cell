@@ -108,8 +108,8 @@
       }
 
       // Determine if current node is a child of the queried component/module
-      @else if str-index($property, 'with-') == 1 {
-        $component: str-replace($property, 'with-', '');
+      @else if str-index($property, 'in-') == 1 {
+        $component: str-replace($property, 'in-', '');
         $context: if(str-index($component, '$') == 1, str-slice($component, 2), ($module, $component));
 
         @include context($context) {
