@@ -492,6 +492,10 @@ $module: null !default;
   $pipedContexts: '';
   $excludeRootSelector: false;
 
+  @if $context == '' {
+    $context: null;
+  }
+
   @if $pipeContexts {
     @each $item in $context {
       @if str-index($item, ':') == 1 {
@@ -1919,7 +1923,7 @@ $css-properties: (
         $context: if(str-index($component, '$') == 1, str-slice($component, 2), ($module, $component));
 
         @include context($context) {
-          @include parse-cq($value);
+          @include parse-cq($value, $prevContext: ($context, ''));
         }
       }
 
@@ -2111,8 +2115,8 @@ $css-properties: (
   // @TODO this needs to identify if nested within itself, not nested in general
   $nested: &;
 
+  // We are creating a root module, so create a global variable
   @if not $nested {
-    // We are creating a root module, so create a global variable
     $module: $modules !global;
     $this: $module !global;
   }
