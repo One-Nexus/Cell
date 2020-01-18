@@ -113,7 +113,7 @@
         $context: if(str-index($component, '$') == 1, str-slice($component, 2), ($module, $component));
 
         @include context($context) {
-          @include parse-cq($value);
+          @include parse-cq($value, $prevContext: ($context, ''));
         }
       }
 

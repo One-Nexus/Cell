@@ -8,6 +8,10 @@
   $pipedContexts: '';
   $excludeRootSelector: false;
 
+  @if $context == '' {
+    $context: null;
+  }
+
   @if $pipeContexts {
     @each $item in $context {
       @if str-index($item, ':') == 1 {
