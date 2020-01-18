@@ -26,8 +26,8 @@
   // @TODO this needs to identify if nested within itself, not nested in general
   $nested: &;
 
+  // We are creating a root module, so create a global variable
   @if not $nested {
-    // We are creating a root module, so create a global variable
     $module: $modules !global;
     $this: $module !global;
   }
