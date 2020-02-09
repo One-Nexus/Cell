@@ -359,9 +359,12 @@ Since the initial conception, Cell has evolved to become a fully-fledged framewo
 
 ---
 
-<a href="https://twitter.com/ESR360">
-    <img src="http://edmundreed.com/assets/images/twitter.gif?v=1" width="250px" />
-</a>
 <a href="https://github.com/ESR360">
-    <img src="http://edmundreed.com/assets/images/github.gif?v=1" width="250px" />
+  <img src="http://edmundreed.com/assets/images/github.gif?v=1" width="230px" />
+</a>
+<a href="https://twitter.com/ESR360">
+  <img src="http://edmundreed.com/assets/images/twitter.gif?v=1" width="230px" />
+</a>
+<a href="https://www.instagram.com/edmund_reed/">
+  <img src="http://edmundreed.com/assets/images/insta.png" width="230px" />
 </a>
