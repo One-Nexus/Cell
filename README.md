@@ -5,7 +5,7 @@
 
 > Style BEM DOM elements using Sass [[View SassDocs](https://one-nexus.github.io/Cell/sass/)]
 
-<img height="80px" src="http://onenexus.io/cell/images/cell-logo.png" />
+<img src="https://edmundreed.com/projects/cell/banner.png" />
 
 * [Overview](#overview)
 * [Installation & Setup](#installation--setup)
@@ -40,6 +40,7 @@ Cell is used for styling DOM elements that follow the [Cell naming convention](h
 * Requires Sass 3.4+ (4.9+ if using Node-Sass)
 * [Import themes/configuration into your Sass/Cell components as JavaScript/JSON](https://github.com/One-Nexus/Cell/wiki/JavaScript-Configuration#usage)
 * Built for the [Synergy framework](https://github.com/One-Nexus/Synergy)
+* [Compatible with Cell Query](https://github.com/One-Nexus/Synergy-Front-End-Guides/wiki/Cell-Query)
 
 ### Example
 
@@ -136,6 +137,33 @@ Continuing from the previous example, the `display` Atom can instead be used to 
   }
 }
 ```
+
+### Using [Cell Query (CQ)](https://github.com/One-Nexus/Synergy-Front-End-Guides/wiki/Cell-Query)
+
+Cell can interpret and parse CQ by passing a CQ compatible Sass map as the second parameter to the `module()` mixin, allowing the `accordion` example to be re-written as:
+
+```scss
+@include module('accordion', (
+  'panel': (
+    ...
+  ),
+
+  'title': (
+    ...
+  ),
+
+  'content': (
+    ...
+    'display': none,
+
+    'panel-is-active': (
+      'display': block
+    )
+  )
+));
+```
+
+> [Learn more about Cell and Cell Query (CQ)](https://github.com/One-Nexus/Cell/wiki/Cell-Query)
 
 ## Installation & Setup
 
@@ -240,7 +268,7 @@ export default (theme) => ({
 }
 ```
 
-> Note that the `background` property is output to CSS despite not being hard-coded inside `styles.scss` - this is because configuration properties that correspond to CSS properties can be automatically parsed as CSS - read the [Cell Query Draft page](https://github.com/One-Nexus/Cell/wiki/Cell-Query-Draft) to learn more
+> Note that the `background` property is output to CSS despite not being hard-coded inside `styles.scss` - this is because configuration properties that correspond to CSS properties can be automatically parsed as CSS - read the [Cell Query page](https://github.com/One-Nexus/Cell/wiki/Cell-Query) to learn more
 
 > Read the [JavaScript Configuration page](https://github.com/One-Nexus/Cell/wiki/JavaScript-Configuration) for setup instructions and more information
 
@@ -318,7 +346,7 @@ This solution offers all the practical benefits of scoped styling (thanks to the
 * [Creating a Cell Module](https://github.com/One-Nexus/Cell/wiki/Creating-a-Module)
 * [Module Configuration](https://github.com/One-Nexus/Cell/wiki/Module-Configuration)
 * [Theming](https://github.com/One-Nexus/Cell/wiki/Theming)
-* [Cell Query Draft (CQD)](https://github.com/One-Nexus/Cell/wiki/Cell-Query-Draft)
+* [Cell Query (CQ)](https://github.com/One-Nexus/Cell/wiki/Cell-Query)
 * [Using with JavaScript](https://github.com/One-Nexus/Cell/wiki/JavaScript-Configuration)
 * [Atoms](https://github.com/One-Nexus/Cell/wiki/Atoms)
 
