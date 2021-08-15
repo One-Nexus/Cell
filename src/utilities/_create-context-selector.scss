@@ -1,3 +1,7 @@
+@use "sass:list";
+@use "sass:meta";
+@use "sass:string";
+
 /// Used to create a selector from context() arguments
 ///
 /// @param {(string|list)} $block - The name of the module/component that has the context
@@ -14,7 +18,7 @@
 
   @if $pipeContexts {
     @each $item in $context {
-      @if str-index($item, ':') == 1 {
+      @if string.index($item, ':') == 1 {
         $pipedContexts: $pipedContexts + $item;
       }
       @else {
@@ -22,7 +26,7 @@
         $pipedContexts: $pipedContexts + '[class*="#{$modifierGlue}#{$item}"]';
       }
     }
-    @if type-of($block) == 'string' and not $excludeRootSelector {
+    @if meta.type-of($block) == 'string' and not $excludeRootSelector {
       $selector: '.#{$block}#{$pipedContexts}, [class*=".#{$block}#{$modifierGlue}"]#{$pipedContexts}';
     }
     @else {
@@ -33,24 +37,24 @@
   @else {
     @if $context {
       @each $item in $context {
-        @if str-index($item, ':') == 1 {
-          @if type-of($block) == 'string' {
-            $selector: append($selector, '.#{$block}#{$item}', comma);
+        @if string.index($item, ':') == 1 {
+          @if meta.type-of($block) == 'string' {
+            $selector: list.append($selector, '.#{$block}#{$item}', comma);
           }
-          $selector: append($selector, '#{generate-chunk($block)}#{$item}', comma);
+          $selector: list.append($selector, '#{generate-chunk($block)}#{$item}', comma);
         }
         @else {
-          $selector: append($selector, '#{generate-chunk($block)}[class*="#{$modifierGlue}#{$item}"]', comma);
+          $selector: list.append($selector, '#{generate-chunk($block)}[class*="#{$modifierGlue}#{$item}"]', comma);
         }
       }
     }
     @else {
-      @if type-of($block) == 'string' {
-        $selector: append($selector, '.#{$block}', comma);
-        $selector: append($selector, '[class*=".#{$block}#{$modifierGlue}"]', comma);
+      @if meta.type-of($block) == 'string' {
+        $selector: list.append($selector, '.#{$block}', comma);
+        $selector: list.append($selector, '[class*=".#{$block}#{$modifierGlue}"]', comma);
       }
       @else {
-        $selector: append($selector, generate-chunk($block), comma);
+        $selector: list.append($selector, generate-chunk($block), comma);
       }
     }
   }
@@ -64,13 +68,13 @@
 @function generate-chunk($block) {
   $chunk: '';
 
-  @if type-of($block) == 'list' {
-    @for $i from 1 through length($block) {
+  @if meta.type-of($block) == 'list' {
+    @for $i from 1 through list.length($block) {
       @if $i == 1 {
-        $chunk: $chunk + '[class*=".#{nth($block, $i)}#{$componentGlue}"]';
+        $chunk: $chunk + '[class*=".#{list.nth($block, $i)}#{$componentGlue}"]';
       }
       @else {
-        $chunk: $chunk + '[class*="#{$componentGlue}#{nth($block, $i)}"]';
+        $chunk: $chunk + '[class*="#{$componentGlue}#{list.nth($block, $i)}"]';
       }
     }
   }

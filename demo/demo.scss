@@ -27,3 +27,17 @@
         }
     }
 }
+
+@include module('foo', $content: (
+    'panel': (
+        color: red
+    ),
+    'is-modifier': (
+        color: blue
+    ),
+    'title': (
+        'panel-is-active': (
+            color: green
+        )
+    )
+))

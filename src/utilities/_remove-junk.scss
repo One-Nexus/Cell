@@ -1,11 +1,14 @@
+@use "node_modules/Sass-Boost/dist/sass-boost";
+@use "../config";
+
 /// Remove junk characters from a selector string
 ///
 /// @param {string} $query
 @function remove-junk($query) {
-  $query: str-replace($query, '.', '');
-  $query: str-replace($query, '[class*="#{$modifierGlue}', '');
-  $query: str-replace($query, '[class*="', '');
-  $query: str-replace($query, '"]', '');
+  $query: sass-boost.str-replace($query, '.', '');
+  $query: sass-boost.str-replace($query, '[class*="#{config.$modifierGlue}', '');
+  $query: sass-boost.str-replace($query, '[class*="', '');
+  $query: sass-boost.str-replace($query, '"]', '');
 
   @return $query;
 }

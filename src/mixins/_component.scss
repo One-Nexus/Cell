@@ -1,3 +1,11 @@
+@use "sass:selector";
+@use "sass:string";
+@use "sass:list";
+
+@use "node_modules/Sass-Boost/dist/sass-boost";
+
+@use "../utilities/utils";
+
 /// Create a component based off the main module
 ///
 /// @param {string|list} $components - The component or components to be used
@@ -13,12 +21,12 @@
   $cascade: true
 ) {
   $this: &;
-  $namespace: get-module-name($this);
+  $namespace: utils.get-module-name($this);
   $selectors: '[class*=".#{$module}#{$glue}"]';
   $parents: ();
 
   @if $sub-component {
-    $namespace: get-namespace(&);
+    $namespace: utils.get-namespace(&);
   }
 
   @if $components {
@@ -31,33 +39,31 @@
         $selector: '> #{$selector}';
       }
 
-      $selectors: join($selectors, $selector, comma);
+      $selectors: list.join($selectors, $selector, comma);
     }
   }
 
   @each $selector in & {
     // spoof the selector into a list
-    $selector: selector-parse(str-replace(#{$selector}, ' ', ', '));
+    $selector: selector.parse(sass-boost.str-replace(#{$selector}, ' ', ', '));
 
-    $last-item: nth($selector, length($selector));
-    $is-modifier: str-index(#{$last-item}, '[class*="#{$modifierGlue}');
-    $is-pseudo-state: str-index(#{$last-item}, ':');
+    $last-item: list.nth($selector, list.length($selector));
+    $is-modifier: string.index(#{$last-item}, '[class*="#{$modifierGlue}');
+    $is-pseudo-state: string.index(#{$last-item}, ':');
 
     @if not ($is-modifier or $is-pseudo-state) {
-      $selector: list-remove($selector, $last-item);
+      $selector: sass-boost.list-remove($selector, $last-item);
     }
 
-    @debug $selector;
-
     // Re-build the parent selector
-    @if length($selector) > 0 {
-      $parents: append($parents, str-replace(#{$selector}, ', ', ' '), comma);
+    @if list.length($selector) > 0 {
+      $parents: list.append($parents, sass-boost.str-replace(#{$selector}, ', ', ' '), comma);
     }
   }
 
-  $parents: list-remove-duplicates($parents);
+  $parents: sass-boost.list-remove-duplicates($parents);
 
-  @if length($parents) == 0 {
+  @if list.length($parents) == 0 {
     @at-root #{$selectors} {
       @content;
 

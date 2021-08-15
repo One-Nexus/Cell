@@ -1,12 +1,16 @@
+@use "sass:string";
+
+@use "node_modules/Sass-Boost/dist/sass-boost";
+
 /// Shift pseudo-elements to the end of a selector
 ///
 /// @param {string} $selector
 @function shift-pseudo-elements($selector) {
-    @if str-index($selector, '::before') {
-        $selector: str-replace($selector, '::before', '') + '::before';
+    @if string.index($selector, '::before') {
+        $selector: sass-boost.str-replace($selector, '::before', '') + '::before';
     }
     @if str-index($selector, '::after') {
-        $selector: str-replace($selector, '::after', '') + '::after';
+        $selector: sass-boost.str-replace($selector, '::after', '') + '::after';
     }
     @return $selector;
 }

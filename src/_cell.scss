@@ -7,6 +7,7 @@
 @import '../node_modules/Sass-Boost/src/sass-boost';
 
 @import 'config';
+@import 'parse-cq';
 
 @import 'atoms/display';
 @import 'atoms/position';
@@ -14,8 +15,7 @@
 
 @import 'utilities/create-context-selector';
 @import 'utilities/css-properties';
-@import 'utilities/parse-cq';
-@import 'utilities/get-module-name';
+// @import 'utilities/get-module-name';
 @import 'utilities/get-namespace';
 @import 'utilities/remove-junk';
 @import 'utilities/remove-modifiers';
