@@ -2,40 +2,27 @@
 @import '../src/cell';
 
 @include module('button') {
-    @include modifier('small') {
-        font-size: 10px;
-
-        @include modifier('danger') {
-            background-color: red;
-
-            @include pseudo-element('before') {
-                content: test;
-
-                @include hover {
-                    content: hello;
-                }
-
-                @include modifier('fizz') {
-                    content: nested-hover;
-                }
-            }
-        }
-    }
-
-    @include component('icon') {
+    @include modifier('foo') {
         content: icon;
-    }
 
-    @include modifier('delete') {
-        @include extend(('small', 'danger'));
+        @include component('icon') {
+            content: 'foo';
+        }
     }
 }
 
 @include module('module1') {
+    content: module1;
     @include component('fizz') {
+        content: fizz;
+    }
+    @include modifier('test') {
         @include module('module2') {
-            @include modifier('buzz') {
-                content: fizz;
+            content: module2;
+            @include modifier('test2') {
+                @include components('buzz') {
+                    content: buzz;
+                }
             }
         }
     }

@@ -1,24 +1,20 @@
-[class*=".button--"][class*="--small"], [class*=".button--"][class*="--delete"] {
-  font-size: 10px;
-}
-[class*=".button--"][class*="--small"][class*="--danger"], [class*=".button--"][class*="--delete"] {
-  background-color: red;
-}
-[class*=".button--"][class*="--small"][class*="--danger"]::before, [class*=".button--"][class*="--delete"]::before {
-  content: test;
-}
-[class*=".button--"][class*="--small"][class*="--danger"]:hover::before, [class*=".button--"][class*="--delete"]:hover::before {
-  content: hello;
-}
-
-[class*=".button--"][class*="--small"][class*="--danger"][class*="--fizz"]::before, [class*=".button--"][class*="--fizz"][class*="--delete"]::before {
-  content: nested-hover;
-}
-
-.button__icon, [class*=".button__icon--"] {
+[class*=".button--"][class*="--foo"] {
   content: icon;
 }
+[class*=".button--"][class*="--foo"] .button__icon, [class*=".button--"][class*="--foo"] [class*=".button__icon--"] {
+  content: "foo";
+}
 
-.module1__fizz [class*=".module2--"], [class*=".module1__fizz--"] [class*=".module2--"][class*="--buzz"] {
+.module1, [class*=".module1--"] {
+  content: module1;
+}
+.module1__fizz, [class*=".module1__fizz--"] {
   content: fizz;
+}
+
+[class*=".module1--"][class*="--test"] .module2, [class*=".module1--"][class*="--test"] [class*=".module2--"] {
+  content: module2;
+}
+[class*=".module1--"][class*="--test"] [class*=".module2--"][class*="--test2"] .module2__buzz, [class*=".module1--"][class*="--test"] [class*=".module2--"][class*="--test2"] [class*=".module2__buzz--"] {
+  content: buzz;
 }

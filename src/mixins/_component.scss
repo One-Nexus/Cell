@@ -13,8 +13,9 @@
   $cascade: true
 ) {
   $this: &;
-  $selectors: '[class*=".#{$module}#{$glue}"]';
   $namespace: get-module-name($this);
+  $selectors: '[class*=".#{$module}#{$glue}"]';
+  $parents: ();
 
   @if $sub-component {
     $namespace: get-namespace(&);
@@ -34,35 +35,29 @@
     }
   }
 
-  $parents: ();
-
   @each $selector in & {
     // spoof the selector into a list
-    $selector: selector-parse(str-replace(inspect($selector), ' ', ', '));
+    $selector: selector-parse(str-replace(#{$selector}, ' ', ', '));
 
-    $is-modifier: str-index(inspect(nth($selector, length($selector))), '[class*="#{$modifierGlue}');
-    $is-pseudo-state: str-index(inspect(nth($selector, length($selector))), ':');
+    $last-item: nth($selector, length($selector));
+    $is-modifier: str-index(#{$last-item}, '[class*="#{$modifierGlue}');
+    $is-pseudo-state: str-index(#{$last-item}, ':');
 
-    // if the last item isn't a modifier or pseudo state, remove it
     @if not ($is-modifier or $is-pseudo-state) {
-      $selector: list-remove($selector, nth($selector, length($selector)));
+      $selector: list-remove($selector, $last-item);
     }
 
-    @if length($selector) == 1 {
-      $selector: nth($selector, 1);
-    }
+    @debug $selector;
 
     // Re-build the parent selector
-    $parents: append($parents, str-replace(inspect($selector), ', ', ' '), comma);
+    @if length($selector) > 0 {
+      $parents: append($parents, str-replace(#{$selector}, ', ', ' '), comma);
+    }
   }
 
   $parents: list-remove-duplicates($parents);
 
-  @if length($parents) == 1 {
-    $parents: nth($parents, 1);
-  }
-
-  @if ($parents == '()') {
+  @if length($parents) == 0 {
     @at-root #{$selectors} {
       @content;
 
