@@ -17,6 +17,7 @@
     $modifier-end: str-index($modifier, '"]');
     // Isolate the modifier
     $modifier: str-slice($modifier, 0, $modifier-end);
+
     // Remove the modifier from the selector
     $selector: str-replace($selector, $modifier, '');
     // Remove junk characters

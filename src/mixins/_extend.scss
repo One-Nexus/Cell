@@ -15,11 +15,11 @@
     @if type-of($modifier) == 'string' {
       $selector: if($parent, $namespaced-parent, $module);
 
-      @extend [class*="#{$selector}#{$modifierGlue}"][class*="#{$modifierGlue}#{$modifier}"];
+      @extend [class*=".#{$selector}#{$modifierGlue}"], [class*="#{$modifierGlue}#{$modifier}"];
     }
     @else if type-of($modifier) == 'list' {
-      $namespaced-selector: ('[class*="#{$namespaced-parent}#{$modifierGlue}"]');
-      $module-selector: ('[class*="#{$module}#{$modifierGlue}"]');
+      $namespaced-selector: ('[class*=".#{$namespaced-parent}#{$modifierGlue}"]');
+      $module-selector: ('[class*=".#{$module}#{$modifierGlue}"]');
 
       $selectors: if($parent, $namespaced-selector, $module-selector);
 

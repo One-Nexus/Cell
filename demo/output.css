@@ -1,0 +1,24 @@
+[class*=".button--"][class*="--small"], [class*=".button--"][class*="--delete"] {
+  font-size: 10px;
+}
+[class*=".button--"][class*="--small"][class*="--danger"], [class*=".button--"][class*="--delete"] {
+  background-color: red;
+}
+[class*=".button--"][class*="--small"][class*="--danger"]::before, [class*=".button--"][class*="--delete"]::before {
+  content: test;
+}
+[class*=".button--"][class*="--small"][class*="--danger"]:hover::before, [class*=".button--"][class*="--delete"]:hover::before {
+  content: hello;
+}
+
+[class*=".button--"][class*="--small"][class*="--danger"][class*="--fizz"]::before, [class*=".button--"][class*="--fizz"][class*="--delete"]::before {
+  content: nested-hover;
+}
+
+.button__icon, [class*=".button__icon--"] {
+  content: icon;
+}
+
+.module1__fizz [class*=".module2--"], [class*=".module1__fizz--"] [class*=".module2--"][class*="--buzz"] {
+  content: fizz;
+}

@@ -1,11 +1,16 @@
-/// Get the name of a module from a namespace
+/// Get the name of a module from a selector
 ///
-/// @param {string} $namespace
-@function get-module-name($namespace) {
-  $modifier-index: str-index($namespace, $modifierGlue);
-  $component-index: str-index($namespace, $componentGlue);
+/// @param {string} $selector
+@function get-module-name($selector) {
+  $cleaned-selector: inspect(nth($selector, length($selector)));
+  $cleaned-selector: selector-parse(str-replace($cleaned-selector, ' ', ', '));
+  $cleaned-selector: nth($cleaned-selector, length($cleaned-selector));
+  $cleaned-selector: remove-junk(inspect($cleaned-selector));
+
+  $modifier-index: str-index($cleaned-selector, $modifierGlue);
+  $component-index: str-index($cleaned-selector, $componentGlue);
 
   $slice-index: if($component-index, $component-index, $modifier-index);
 
-  @return if($slice-index, str-slice($namespace, 0, $slice-index - 1), $namespace);
+  @return if($slice-index, str-slice($cleaned-selector, 0, $slice-index - 1), $cleaned-selector);
 }

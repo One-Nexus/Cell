@@ -1,0 +1,12 @@
+/// Shift pseudo-elements to the end of a selector
+///
+/// @param {string} $selector
+@function shift-pseudo-elements($selector) {
+    @if str-index($selector, '::before') {
+        $selector: str-replace($selector, '::before', '') + '::before';
+    }
+    @if str-index($selector, '::after') {
+        $selector: str-replace($selector, '::after', '') + '::after';
+    }
+    @return $selector;
+}

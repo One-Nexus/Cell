@@ -1,20 +1,16 @@
 /// Used to generate selectors for pseudo states
 ///
 /// @param {string} $state
-@mixin pseudo-state($state) {
+@mixin pseudo-state($state, $class: true) {
   $scope: &;
   $selector: ();
+  $connector: if($class, ':', '::');
 
   @each $item in $scope {
-    $chunk: '#{$item}:#{$state}';
+    $chunk: '#{$item}#{$connector}#{$state}';
 
     // pseudo-elements must be at the end
-    @if str-index($chunk, ':before') and str-index($chunk, ':before') != (str-length($chunk) - 5) {
-      $chunk: str-replace($chunk, ':before', '') + ':before';
-    }
-    @if str-index($chunk, ':after') and str-index($chunk, ':after') != (str-length($chunk) - 5) {
-      $chunk: str-replace($chunk, ':after', '') + ':after';
-    }
+    $chunk: shift-pseudo-elements($chunk);
 
     $selector: append($selector, $chunk, comma);
   }
@@ -24,7 +20,14 @@
   }
 }
 
-/// Alias for `pseudo-state` mixin with $state: 'hover'
+/// Alias
+@mixin pseudo-element($state) {
+  @include pseudo-state($state, $class: false) {
+    @content;
+  }
+}
+
+/// Sugar for `pseudo-state` mixin with $state: 'hover'
 @mixin hover {
   @include pseudo-state('hover') {
     @content;

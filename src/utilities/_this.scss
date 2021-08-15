@@ -4,33 +4,15 @@
 @function this($options...) {
   $value: '';
 
-  @if (variable-exists('smart-config')) {
-    $value: option($smart-config, $options...);
+  @if (variable-exists('config')) {
+    $value: map-get-deep($config, $options...);
   }
-
-  @else if (variable-exists('config')) {
-    $value: option($config, $options...);
-  }
-
-  @else {
-    @warn 'no config can be found for #{$module}';
-  }
-
-  $debug: true;
 
   @if (variable-exists('sassConfigParser') and $sassConfigParser) {
     $value: call(get-function($sassConfigParser), $value);
   }
 
-  $this: &;
-
-  @if length($this) > 0 {
-    @if str-index(inspect(nth($this, 1)), '%') == 1 {
-      $debug: false;
-    }
-  }
-
-  @if $debug and not $value and $value != false {
+  @if not $value and $value != false {
     @warn '#{$options} not found in #{$module} config';
   }
 

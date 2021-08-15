@@ -1,18 +1,15 @@
-/// Create a namespace tree from a passed selector
+/// Identify the namespace from a passed selector
 ///
-/// @param {list} $selector - The selector from which to create the module tree
-@function module-tree($selector) {
+/// @param {list} $selector - The selector from which to get the namespace
+@function get-namespace($selector) {
   $parent-module: $module;
 
-  // Remove any modifers
   $selectors: remove-modifiers($selector);
-
-  // Remove any junk characters
   $selectors: remove-junk($selectors);
 
   // Spoof our selectors into a list
   $selectors: str-replace($selectors, ' ', ', ');
   $selectors: selector-parse($selectors);
 
-  @return $selectors;
+  @return nth($selectors, length($selectors));
 }

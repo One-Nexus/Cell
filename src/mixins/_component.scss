@@ -13,23 +13,18 @@
   $cascade: true
 ) {
   $this: &;
-  $module-map: selector-to-map($this);
-  $selectors: '[class*="#{$module}#{$glue}"]';
-  $namespace: map-get($module-map, 'module');
-
-  @if str-index($namespace, '%') == 1 {
-    $namespace: $module;
-  }
+  $selectors: '[class*=".#{$module}#{$glue}"]';
+  $namespace: get-module-name($this);
 
   @if $sub-component {
-    $namespace: nth(module-tree(&), length(module-tree(&)));
+    $namespace: get-namespace(&);
   }
 
   @if $components {
     $selectors: ();
 
     @each $component in $components {
-      $selector: '.#{$namespace}#{$glue}#{$component}, [class*="#{$namespace}#{$glue}#{$component}#{$modifierGlue}"]';
+      $selector: '.#{$namespace}#{$glue}#{$component}, [class*=".#{$namespace}#{$glue}#{$component}#{$modifierGlue}"]';
 
       @if not $cascade {
         $selector: '> #{$selector}';

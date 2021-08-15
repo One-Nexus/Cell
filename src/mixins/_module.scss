@@ -29,24 +29,20 @@
   // We are creating a root module, so create a global variable
   @if not $nested {
     $module: $modules !global;
-    $this: $module !global;
+    $this: $modules !global;
   }
 
   $selectors: ();
 
   @each $module in $modules {
     $selectors: join($selectors, '.#{$module}', comma);
-    $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
+    $selectors: join($selectors, '[class*=".#{$module}#{$modifierGlue}"]', comma);
   }
-
-  $targetExists: variable-exists('config') and map-has-key($config, 'target');
-  // @TODO tidy up how $target is used here and in $modifier - also probably won't work for component()
-  $target: if($targetExists, ('module': $module, 'target': map-get($config, 'target')), false) !global;
 
   @if not $disable-output {
     #{$selectors} {
       @if not $nested {
-        @include module-content($modules, $config, $target);
+        @include module-content($modules, $config);
       }
 
       @content;
@@ -60,21 +56,13 @@
 ///
 /// @param {string|list} $module
 /// @param {map} $config
-/// @param {*} $target
-@mixin module-content($module, $config, $target) {
+@mixin module-content($module, $config) {
   @include extend-modifiers;
   @include combine-modifiers;
 
   @if variable-exists('config') and $outputCSSFromConfig {
-    @if $module == map-get($config, 'name') or $target {
-      @if type-of($target) == 'map' and map-get($target, 'module') == $module {
-        #{map-get($target, 'target')} {
-          @include parse-cq($config);
-        }
-      }
-      @else {
-        @include parse-cq($config);
-      }
+    @if $module == map-get($config, 'name') {
+      @include parse-cq($config);
     }
   }
 }

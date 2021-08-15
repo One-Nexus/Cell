@@ -1,6 +1,0 @@
-/// Return the value of a module's option
-///
-/// @alias map-get-deep
-@function option($args...) {
-  @return map-get-deep($args...);
-}

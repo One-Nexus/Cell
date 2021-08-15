@@ -2,7 +2,7 @@
 ///
 /// @param {arglist} $context
 @mixin context($context...) {
-  $selector: create-selector-from-context($context...);
+  $selector: create-context-selector($context...);
   $scope: &;
 
   @at-root #{$selector} {

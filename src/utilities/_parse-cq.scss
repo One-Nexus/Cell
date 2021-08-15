@@ -6,29 +6,8 @@
 @mixin parse-cq($map, $sub-component: false, $prevContext: false) {
   @each $property, $value in $map {
     @if type-of($property) == 'string' {
-      // $property defines new Modifier
-      @if str-index($property, 'modifier(') == 1 or str-index($property, $modifierGlue) == 1 {
-        @include modifier(get-param($property)) {
-          @include parse-cq($value);
-        }
-      }
-
-      // $property defines new Component
-      @else if str-index($property, 'component(') == 1 or str-index($property, $componentGlue) == 1 {
-        @include component(get-param($property)) {
-          @include parse-cq($value);
-        }
-      }
-
-      // $property defines new Component
-      @else if str-index($property, 'sub-component(') == 1 {
-        @include sub-component(get-param($property)) {
-          @include parse-cq($value);
-        }
-      }
-
       // $property is for parent wrapper/group element
-      @else if $property == 'group' or $property == 'wrapper' {
+      @if $property == 'group' or $property == 'wrapper' {
         @include wrapper($property, if($prevContext, $prevContext, $module)) {
           @include parse-cq($value);
         }
@@ -58,9 +37,9 @@
           str-slice($property, str-index($property, ':'), str-length($property))
         );
         $prevContextVal: ('block': nth($prevContext, 1), 'context': nth($prevContext, 2));
-        $prevChunk: create-selector-from-context(map-get($prevContextVal, 'block'), map-get($prevContextVal, 'context'));
+        $prevChunk: create-context-selector(map-get($prevContextVal, 'block'), map-get($prevContextVal, 'context'));
         $newContextVal: append(map-get($prevContextVal, 'context'), $context);
-        $newChunk: create-selector-from-context(map-get($prevContextVal, 'block'), $newContextVal, $pipeContexts: true);
+        $newChunk: create-context-selector(map-get($prevContextVal, 'block'), $newContextVal, $pipeContexts: true);
 
         $selector: ();
 

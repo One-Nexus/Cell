@@ -1,13 +1,15 @@
 /// Create a modifier for a module
 ///
 /// @param {string|list} $modifiers  - The modifier(s) which you wish to create
-/// @param {string} $special [null] - Add special contextual options to modifier
 /// @param {bool} $glue ['--'] - Desired modifier separator/glue
 /// @param {string} $module
-@mixin modifier($modifiers, $special: null, $glue: $modifierGlue, $module: $module) {
+@mixin modifier($modifiers, $glue: $modifierGlue, $module: $module) {
   $scope: &;
+  $namespace: get-namespace(&);
+  $modifiers-chunk: ();
 
-  @if str-index(inspect(&), '.#{$module}') {
+  // remove root selector chunks from selector
+  @if str-index(inspect(&), '.#{$namespace},') {
     $scope: ();
 
     @for $i from 1 through length(&) {
@@ -17,25 +19,13 @@
     }
   }
 
-  $modifiers-chunk: ();
-
   @each $modifier in $modifiers {
-    @if $special == 'not' {
-      $modifiers-chunk: join($modifiers-chunk, ':not([class*="#{$glue}#{$modifier}"])', comma);
-    }
-    @else {
-      $modifiers-chunk: join($modifiers-chunk, '[class*="#{$glue}#{$modifier}"]', comma);
-    }
+    $modifiers-chunk: join($modifiers-chunk, '[class*="#{$glue}#{$modifier}"]', comma);
 
     $selector: #{$scope}#{$modifiers-chunk};
 
     // pseudo-elements must be at the end
-    @if str-index($selector, ':before') and str-index($selector, ':before') != (str-length($selector) - 6) {
-      $selector: str-replace($selector, ':before', '') + ':before';
-    }
-    @if str-index($selector, ':after') and str-index($selector, ':after') != (str-length($selector) - 5) {
-      $selector: str-replace($selector, ':after', '') + ':after';
-    }
+    $selector: shift-pseudo-elements($selector);
 
     @at-root #{$selector} {
       @content;
