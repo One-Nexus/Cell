@@ -30,3 +30,7 @@
 [class*=".foo__"][class*=__panel][class*="--active"] .foo__title, [class*=".foo__"][class*=__panel][class*="--active"] [class*=".foo__title--"] {
   color: green;
 }
+
+.header, [class*=".header--"], .footer, [class*=".footer--"] {
+  font-size: 12px;
+}

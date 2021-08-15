@@ -40,4 +40,8 @@
             color: green
         )
     )
-))
+));
+
+@include modules(('header', 'footer'), $config: ('name': 'test')) {
+    font-size: 12px;
+}
