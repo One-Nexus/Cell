@@ -1,18 +1,18 @@
-@mixin foo($custom: ()) {
-  $foo: create-config((
-    'foo' : ('bar' : false)
-  ), $custom);
-}
+// @mixin foo($custom: ()) {
+//   $foo: create-config((
+//     'foo' : ('bar' : false)
+//   ), $custom);
+// }
 
-@include test-module('this') {
-  @include test('get a value from the current module`s configuration') {
-    @include foo((
-      'foo' : ('bar' : true)
-    ));
+// @include test-module('this') {
+//   @include test('get a value from the current module`s configuration') {
+//     @include foo((
+//       'foo' : ('bar' : true)
+//     ));
 
-    $actual: this('foo', 'bar');
-    $expected: true;
+//     $actual: this('foo', 'bar');
+//     $expected: true;
 
-    @include assert-equal($actual, $expected, 'should return the expected value');
-  }
-}
+//     @include assert-equal($actual, $expected, 'should return the expected value');
+//   }
+// }

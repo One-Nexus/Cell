@@ -1,0 +1,14 @@
+@use "sass:string";
+
+/// Get the module from a namespace
+///
+/// @param {list} $selector - The selector from which to get the namespace
+@function get-module($namespace, $componentGlue) {
+  $slice-index: string.index($namespace, $componentGlue);
+
+  @if $slice-index {
+    @return string.slice($namespace, 1, $slice-index - 1);
+  } @else {
+    @return $namespace;
+  }
+}

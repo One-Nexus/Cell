@@ -1,9 +1,12 @@
 @use "sass:selector";
 @use "sass:list";
 @use "sass:meta";
+@use "sass:map";
 @use "sass:string";
 
 @use "node_modules/Sass-Boost/dist/sass-boost";
+
+@use "utilities/utils";
 
 /// Parse CQ
 ///
@@ -48,31 +51,25 @@
           string.slice($property, string.index($property, ':'), string.length($property))
         );
 
-        $prevContextVal: (
-          'block': list.nth($prevContext, 1), 
-          'context': list.nth($prevContext, 2)
+        $prevContextBlock: list.nth($prevContext, 1);
+        $prevContextContext: list.nth($prevContext, 2);
+        $newContext: list.append($prevContextContext, $context);
+
+        $prevChunk: utils.create-context-selector(
+          $prevContextBlock, $prevContextContext, $modifierGlue, $componentGlue
         );
 
-        $prevChunk: create-context-selector(
-          map.get($prevContextVal, 'block'), 
-          map.get($prevContextVal, 'context')
-        );
-
-        $newContextVal: list.append(map.get($prevContextVal, 'context'), $context);
-
-        $newChunk: create-context-selector(
-          map.get($prevContextVal, 'block'), 
-          $newContextVal, 
-          $pipeContexts: true
+        $newChunk: utils.create-context-selector(
+          $prevContextBlock, $newContext, $modifierGlue, $componentGlue, $pipeContexts: true
         );
 
         $selector: ();
 
         @each $pChunk in $prevChunk {
-          @each $chunk in selector.parse(sass-boost.str-replace(meta.inspect($newChunk), ' ', ', ')) {
-            @if string.index(meta.inspect($chunk), $pChunk) == 1 {
+          @each $chunk in selector.parse(sass-boost.str-replace(#{$newChunk}, ' ', ', ')) {
+            @if string.index(#{$chunk}, $pChunk) == 1 {
               @each $item in & {
-                @if string.sindex(meta.inspect($item), $pChunk) {
+                @if string.index(#{$item}, $pChunk) {
                   $selector: list.append($selector, selector.replace($item, $pChunk, $chunk), comma);
                 }
               }
@@ -82,7 +79,7 @@
 
         @at-root {
           #{$selector} {
-            @include parse-cq($value, $prevContext: (map.get($prevContextVal, 'block'), $newContextVal));
+            @include parse-cq($value, $prevContext: ($prevContextBlock, $newContext));
           }
         }
       }
@@ -139,7 +136,7 @@
 
       // $property defines pseudo-state/pseudo-element
       @else if string.index($property, ':') == 1 {
-        @include pseudo-state(str-replace($property, ':', '')) {
+        @include pseudo-state(sass-boost.str-replace($property, ':', '')) {
           @include parse-cq($value);
         }
       }
@@ -159,7 +156,7 @@
       }
 
       // $property is a valid CSS property
-      @else if list.index($css-properties, $property) {
+      @else if list.index(utils.$css-properties, $property) {
         @if meta.type-of($value) != 'map' {
           // for before/after pseudo elements
           @if $property == 'content' {

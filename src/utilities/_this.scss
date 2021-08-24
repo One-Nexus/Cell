@@ -1,15 +1,19 @@
+@use "sass:meta";
+
+@use "node_modules/Sass-Boost/dist/sass-boost";
+
 /// Get a value from the current module's configuration
 ///
 /// @param {arglist} $options
 @function this($options...) {
   $value: '';
 
-  @if (variable-exists('config')) {
-    $value: map-get-deep($config, $options...);
+  @if (meta.variable-exists('config')) {
+    $value: sass-boost.map-get-deep($config, $options...);
   }
 
-  @if (variable-exists('sassConfigParser') and $sassConfigParser) {
-    $value: call(get-function($sassConfigParser), $value);
+  @if (meta.variable-exists('sassConfigParser') and $sassConfigParser) {
+    $value: meta.call(meta.get-function($sassConfigParser), $value);
   }
 
   @if not $value and $value != false {

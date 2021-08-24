@@ -1,9 +1,13 @@
+@use "sass:meta";
+
+@use "node_modules/Sass-Boost/dist/sass-boost";
+
 /// Get a value from $theme if it exists
 ///
 /// @param {arglist} $args
 @function theme($args...) {
-  @if variable-exists('theme') and map-get-deep($theme, $args...) {
-    @return map-get-deep($theme, $args...);
+  @if meta.variable-exists('theme') and sass-boost.map-get-deep($theme, $args...) {
+    @return sass-boost.map-get-deep($theme, $args...);
   }
 
   @else {

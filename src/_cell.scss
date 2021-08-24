@@ -4,24 +4,12 @@
 /// @author [@esr360](http://twitter.com/esr360)
 ///****************************************************************
 
-@import '../node_modules/Sass-Boost/src/sass-boost';
-
 @import 'config';
 @import 'parse-cq';
 
 @import 'atoms/display';
 @import 'atoms/position';
 @import 'atoms/visibility';
-
-@import 'utilities/create-context-selector';
-@import 'utilities/css-properties';
-// @import 'utilities/get-module-name';
-@import 'utilities/get-namespace';
-@import 'utilities/remove-junk';
-@import 'utilities/remove-modifiers';
-@import 'utilities/shift-pseudo-elements';
-@import 'utilities/theme';
-@import 'utilities/this';
 
 @import 'mixins/module';
 @import 'mixins/component';

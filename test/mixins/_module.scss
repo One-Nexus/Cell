@@ -13,7 +13,7 @@
       $result: #{&};
     }
     @include assert-equal(
-      $result, '.foo, [class*="foo--"]'
+      $result, '.foo, [class*=".foo--"]'
     );
   }
 
@@ -22,7 +22,7 @@
       $result: #{&};
     }
     @include assert-equal(
-      $result, '.foo, [class*="foo--"], .bar, [class*="bar--"]'
+      $result, '.foo, [class*=".foo--"], .bar, [class*=".bar--"]'
     );
   }
 
@@ -33,34 +33,7 @@
       }
     }
     @include assert-equal(
-      $result, '.foo .bar, .foo [class*="bar--"], [class*="foo--"] .bar, [class*="foo--"] [class*="bar--"]'
+      $result, '.foo .bar, .foo [class*=".bar--"], [class*=".foo--"] .bar, [class*=".foo--"] [class*=".bar--"]'
     );
   }
-
-  @include it('Surpresses output when $disable-output is true') {
-    $disable-output: true !global;
-
-    @include assert {
-      @include output {
-        @include module('foo') {
-          height: 100px;
-        }
-      }
-
-      @include expect {}
-    }
-
-    $disable-output: false !global;
-  }
-
-  // @include it('Outputs CSS from config') {
-  //   @include assert('You can also describe the assertion...') {
-  //     @include output {
-  //       width: 14em + 2;
-  //     }
-  //     @include expect {
-  //       width: 16em;
-  //     }
-  //   }
-  // }
 }

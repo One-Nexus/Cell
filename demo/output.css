@@ -1,15 +1,15 @@
-[class*=".button--"][class*="--foo"] {
-  content: icon;
-}
-[class*=".button--"][class*="--foo"] .button__icon, [class*=".button--"][class*="--foo"] [class*=".button__icon--"] {
-  content: "foo";
-}
-
 .module1, [class*=".module1--"] {
   content: module1;
 }
 .module1__fizz, [class*=".module1__fizz--"] {
   content: fizz;
+}
+.module1__fizz__sub, [class*=".module1__fizz__sub--"] {
+  content: sub;
+}
+
+[class*=".module1__fizz--"][class*="--fuzz"] {
+  content: fuzz;
 }
 
 [class*=".module1--"][class*="--test"] .module2, [class*=".module1--"][class*="--test"] [class*=".module2--"] {
@@ -17,20 +17,4 @@
 }
 [class*=".module1--"][class*="--test"] [class*=".module2--"][class*="--test2"] .module2__buzz, [class*=".module1--"][class*="--test"] [class*=".module2--"][class*="--test2"] [class*=".module2__buzz--"] {
   content: buzz;
-}
-
-.foo__panel, [class*=".foo__panel--"] {
-  color: red;
-}
-
-[class*=".foo--"][class*="--modifier"] {
-  color: blue;
-}
-
-[class*=".foo__"][class*=__panel][class*="--active"] .foo__title, [class*=".foo__"][class*=__panel][class*="--active"] [class*=".foo__title--"] {
-  color: green;
-}
-
-.header, [class*=".header--"], .footer, [class*=".footer--"] {
-  font-size: 12px;
 }

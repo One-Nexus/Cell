@@ -20,14 +20,11 @@
   $glue: $componentGlue,
   $cascade: true
 ) {
-  $this: &;
-  $namespace: utils.get-module-name($this);
-  $selectors: '[class*=".#{$module}#{$glue}"]';
+  $prev-namespace: utils.get-namespace(&, $modifierGlue);
+  $module-name: utils.get-module($prev-namespace, $componentGlue);
+  $namespace: if($sub-component, $prev-namespace, $module-name);
+  $selectors: '[class*=".#{$module-name}#{$glue}"]';
   $parents: ();
-
-  @if $sub-component {
-    $namespace: utils.get-namespace(&);
-  }
 
   @if $components {
     $selectors: ();

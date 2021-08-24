@@ -1,3 +1,9 @@
+@use "sass:list";
+@use "sass:meta";
+@use "sass:string";
+
+@use "../utilities/utils";
+
 /// Create a modifier for a module
 ///
 /// @param {string|list} $modifiers  - The modifier(s) which you wish to create
@@ -5,30 +11,32 @@
 /// @param {string} $module
 @mixin modifier($modifiers, $glue: $modifierGlue, $module: $module) {
   $scope: &;
-  $namespace: get-namespace(&);
+  $namespace: utils.get-namespace(&, $modifierGlue);
   $modifiers-chunk: ();
 
   // remove root selector chunks from selector
-  @if str-index(inspect(&), '.#{$namespace},') {
+  @if string.index(#{&}, '.#{$namespace},') {
     $scope: ();
 
-    @for $i from 1 through length(&) {
+    @for $i from 1 through list.length(&) {
       @if $i % 2 == 0 {
-        $scope: append($scope, nth(&, $i), comma);
+        $scope: list.append($scope, list.nth(&, $i), comma);
       }
     }
   }
 
   @each $modifier in $modifiers {
-    $modifiers-chunk: join($modifiers-chunk, '[class*="#{$glue}#{$modifier}"]', comma);
+    $modifiers-chunk: list.join($modifiers-chunk, '[class*="#{$glue}#{$modifier}"]', comma);
 
     $selector: #{$scope}#{$modifiers-chunk};
 
     // pseudo-elements must be at the end
-    $selector: shift-pseudo-elements($selector);
+    $selector: utils.shift-pseudo-elements($selector);
 
-    @at-root #{$selector} {
-      @content;
+    @at-root {
+      %#{$namespace}-#{$modifier}, #{$selector} {
+        @content;
+      }
     }
   }
 }

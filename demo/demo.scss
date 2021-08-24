@@ -1,26 +1,32 @@
 // Import the project
 @import '../src/cell';
 
-@include module('button') {
-    @include modifier('foo') {
-        content: icon;
+// @include module('button') {
+//     @include modifier('foo') {
+//         content: icon;
 
-        @include component('icon') {
-            content: 'foo';
-        }
-    }
-}
+//         @include component('icon') {
+//             content: 'foo';
+//         }
+//     }
+// }
 
 @include module('module1') {
     content: module1;
     @include component('fizz') {
         content: fizz;
+        @include sub-component('sub') {
+            content: sub;
+        }
+        @include modifier('fuzz') {
+            content: fuzz;
+        }
     }
     @include modifier('test') {
         @include module('module2') {
             content: module2;
             @include modifier('test2') {
-                @include components('buzz') {
+                @include component('buzz') {
                     content: buzz;
                 }
             }
@@ -28,20 +34,80 @@
     }
 }
 
-@include module('foo', $content: (
-    'panel': (
-        color: red
-    ),
-    'is-modifier': (
-        color: blue
-    ),
-    'title': (
-        'panel-is-active': (
-            color: green
-        )
-    )
-));
+// @include module('cat') {
+//     @include modifier('small') {
+//         @include modifier('ting') {
+//             font-size: 10px;
+//         }
+//     }
+// }
 
-@include modules(('header', 'footer'), $config: ('name': 'test')) {
-    font-size: 12px;
-}
+// @include module('foo', $content: (
+//     'panel': (
+//         color: red,
+//         'is-fizzy': (
+//             color: yellow
+//         )
+//     ),
+//     'is-modifier-1': (
+//         color: blue,
+
+//         'is-modifier-2': (
+//             color: orange
+//         )
+//     ),
+//     '$something:active': (
+//         color: green,
+
+//         'and:hover': (
+//             color: pink
+//         )
+//     )
+// ));
+
+// @include module('alpha') {
+//     @include context(('foo', 'bar', 'baz')) {
+//         content: 1;
+//     }
+//     @include context(('one', 'two', 'three'), ('modifier')) {
+//         content: 2;
+//     }
+//     @include context('single') {
+//         content: 3;
+//     }
+// }
+
+// @include module('foo', $config: ( 'modifiers': ('test-modifier') )) {
+//     @include modifier('test-modifier') {
+//         content: 'void'
+//     }
+// }
+
+// @include module('bar', $config: ( 'combine': ('test-modifier': ('alpha', 'beta')) )) {
+//     @include modifier('alpha') {
+//         content: 'alpha'
+//     }   
+//     @include modifier('beta') {
+//         content: 'beta'
+//     }
+// }
+
+// @include module('button') {
+//     @include modifier('small') {
+//         content: small;
+//     }
+//     @include modifier('success') {
+//         content: success;
+//     }
+//     @include modifier('primary') {
+//         @include extend('small');
+//     }
+// }
+
+// @include module('foo') {
+//     @include module('fizz') {
+//         @include component {
+//             display: block;
+//         }
+//     }
+// }

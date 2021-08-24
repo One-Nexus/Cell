@@ -1,3 +1,6 @@
+@use "sass:list";
+@use "sass:meta";
+
 /// Extend one or more modifiers of a module to create a new modifier
 /// combining the ones you pass
 ///
@@ -12,23 +15,9 @@
   }
 
   @each $modifier in $modifiers {
-    @if type-of($modifier) == 'string' {
-      $selector: if($parent, $namespaced-parent, $module);
+    $namespace: if($parent, $namespaced-parent, $module);
 
-      @extend [class*=".#{$selector}#{$modifierGlue}"], [class*="#{$modifierGlue}#{$modifier}"];
-    }
-    @else if type-of($modifier) == 'list' {
-      $namespaced-selector: ('[class*=".#{$namespaced-parent}#{$modifierGlue}"]');
-      $module-selector: ('[class*=".#{$module}#{$modifierGlue}"]');
-
-      $selectors: if($parent, $namespaced-selector, $module-selector);
-
-      @each $item in $modifier {
-        $selectors: join($selectors, '[class*="#{$modifierGlue}#{$item}"]', comma);
-      }
-
-      @extend #{$selectors};
-    }
+    @extend %#{$namespace}-#{$modifier};
   }
 }
 

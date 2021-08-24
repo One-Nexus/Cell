@@ -4,38 +4,37 @@
 
 /// Create a new module
 ///
-/// @param {string|list} $modules - The module(s) you wish to create
+/// @param {string} $module - The module you wish to create
 /// @param {map} $content
+/// @param {map} $config
 @mixin module(
-  $modules,
+  $module,
   $content: (),
   $config: ()
 ) {
   $nested: &; // @TODO needs to identify if nested within itself, not nested in general
   $selectors: ();
 
-  @if not $modules or meta.type-of($modules) == 'map' {
-    $modules: map.get($config, 'name');
+  @if not $module {
+    $module: map.get($config, 'name');
   }
 
   @if ($moduleNamespace) {
-    $modules: $moduleNamespace + $modules;
+    $module: $moduleNamespace + $module;
   }
 
   // We are creating a root module, so create a global variable
   @if not $nested {
-    $module: $modules !global;
-    $this: $modules !global;
+    $module: $module !global; 
+    $this: $module !global;
   }
 
-  @each $module in $modules {
-    $selectors: list.join($selectors, '.#{$module}', comma);
-    $selectors: list.join($selectors, '[class*=".#{$module}#{$modifierGlue}"]', comma);
-  }
+  $selectors: list.join($selectors, '.#{$module}', comma);
+  $selectors: list.join($selectors, '[class*=".#{$module}#{$modifierGlue}"]', comma);
 
   #{$selectors} {
     @if not $nested {
-      @include module-content($modules, $config);
+      @include module-content($module, $config);
     }
 
     @content;
@@ -65,14 +64,5 @@
 
   @if $outputCSSFromConfig and $module == map.get($config, 'name') {
     @include parse-cq($config);
-  }
-}
-
-/// Alias for module() mixin
-///
-/// @param {string|list} $modules - The module(s) you wish to create
-@mixin modules($modules...) {
-  @include module($modules...) {
-    @content;
   }
 }

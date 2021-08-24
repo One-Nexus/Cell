@@ -1,3 +1,7 @@
+@use "sass:list";
+
+@use "../utilities/utils";
+
 /// Used to generate selectors for pseudo states
 ///
 /// @param {string} $state
@@ -10,9 +14,9 @@
     $chunk: '#{$item}#{$connector}#{$state}';
 
     // pseudo-elements must be at the end
-    $chunk: shift-pseudo-elements($chunk);
+    $chunk: utils.shift-pseudo-elements($chunk);
 
-    $selector: append($selector, $chunk, comma);
+    $selector: list.append($selector, $chunk, comma);
   }
 
   @at-root #{$selector} {

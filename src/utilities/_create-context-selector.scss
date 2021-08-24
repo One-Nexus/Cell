@@ -4,19 +4,29 @@
 
 /// Used to create a selector from context() arguments
 ///
-/// @param {(string|list)} $block - The name of the module/component that has the context
+/// @param {string|list} $block - The name of the module/component that has the context
 /// @param {string} $context - The context you wish to test
-/// @param {bool} $pipeContexts
-@function create-context-selector($block, $context: null, $pipeContexts: false) {
+/// @param {bool} $pipeContexts - Pipe modifier chunks together
+@function create-context-selector(
+  $block,
+  $context: null,
+  $modifierGlue,
+  $componentGlue,
+  $pipeContexts: false
+) {
   $selector: ();
   $pipedContexts: '';
-  $excludeRootSelector: false;
+  $namespace: get-namespace-from-list($block, $componentGlue);
+  $chunk: '[class*=".#{$namespace}#{$modifierGlue}"]';
 
   @if $context == '' {
     $context: null;
   }
 
+  // Pipe contexts together - for when they should be applied at the same time
   @if $pipeContexts {
+    $excludeRootSelector: false;
+
     @each $item in $context {
       @if string.index($item, ':') == 1 {
         $pipedContexts: $pipedContexts + $item;
@@ -26,11 +36,13 @@
         $pipedContexts: $pipedContexts + '[class*="#{$modifierGlue}#{$item}"]';
       }
     }
+
+    // unlike modifier chunks, pseudo states require the root module selector
     @if meta.type-of($block) == 'string' and not $excludeRootSelector {
       $selector: '.#{$block}#{$pipedContexts}, [class*=".#{$block}#{$modifierGlue}"]#{$pipedContexts}';
     }
     @else {
-      $selector: '#{generate-chunk($block)}#{$pipedContexts}';
+      $selector: '#{$chunk}#{$pipedContexts}';
     }
   }
 
@@ -41,46 +53,36 @@
           @if meta.type-of($block) == 'string' {
             $selector: list.append($selector, '.#{$block}#{$item}', comma);
           }
-          $selector: list.append($selector, '#{generate-chunk($block)}#{$item}', comma);
+          $selector: list.append($selector, '#{$chunk}#{$item}', comma);
         }
         @else {
-          $selector: list.append($selector, '#{generate-chunk($block)}[class*="#{$modifierGlue}#{$item}"]', comma);
+          $selector: list.append($selector, '#{$chunk}[class*="#{$modifierGlue}#{$item}"]', comma);
         }
       }
     }
     @else {
-      @if meta.type-of($block) == 'string' {
-        $selector: list.append($selector, '.#{$block}', comma);
-        $selector: list.append($selector, '[class*=".#{$block}#{$modifierGlue}"]', comma);
-      }
-      @else {
-        $selector: list.append($selector, generate-chunk($block), comma);
-      }
+      $selector: list.append($selector, '.#{$namespace}', comma);
+      $selector: list.append($selector, $chunk, comma);
     }
   }
 
   @return $selector;
 }
 
-/// Generate a selector chunk from a $block list
+/// Get the namespace from a $block list
 ///
-/// @param {(string|list)} $block
-@function generate-chunk($block) {
-  $chunk: '';
+/// @param {string|list} $block
+@function get-namespace-from-list($block, $componentGlue) {
+  @if meta.type-of($block) == 'list' {  
+    $namespace: '';
 
-  @if meta.type-of($block) == 'list' {
     @for $i from 1 through list.length($block) {
-      @if $i == 1 {
-        $chunk: $chunk + '[class*=".#{list.nth($block, $i)}#{$componentGlue}"]';
-      }
-      @else {
-        $chunk: $chunk + '[class*="#{$componentGlue}#{list.nth($block, $i)}"]';
-      }
+      $item: list.nth($block, $i);
+      $namespace: if($i == 1, $item, '#{$namespace}#{$componentGlue}#{$item}');
     }
-  }
-  @else {
-    $chunk: '[class*=".#{$block}#{$modifierGlue}"]';
+
+    @return $namespace;
   }
 
-  @return $chunk;
+  @return $block;
 }

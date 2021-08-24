@@ -1,23 +1,23 @@
 @use "sass:selector";
 @use "sass:list";
+@use "sass:string";
 
 @use "node_modules/Sass-Boost/dist/sass-boost";
 
 @use "remove-modifiers";
 @use "remove-junk";
 
-/// Identify the namespace from a passed selector
+/// Get the namespace from a selector
 ///
 /// @param {list} $selector - The selector from which to get the namespace
-@function get-namespace($selector) {
-  $parent-module: $module;
+@function get-namespace($selector, $modifierGlue) {
+  $target-chunk: list.nth($selector, list.length($selector)); // incase of multiple chunks, take the last one
+  $cleaned-chunk: remove-modifiers.remove-modifiers($target-chunk, $modifierGlue);
+  $namespace: remove-junk.remove-junk($cleaned-chunk, $modifierGlue);
 
-  $selectors: remove-modifiers.remove-modifiers($selector);
-  $selectors: remove-junk.remove-junk($selectors);
+  @if string.index($namespace, ' ') {
+    $namespace: string.slice($namespace, string.index($namespace, ' ') + 1, string.length($namespace));
+  }
 
-  // Spoof our selectors into a list
-  $selectors: sass-boost.str-replace($selectors, ' ', ', ');
-  $selectors: selector.parse($selectors);
-
-  @return list.nth($selectors, list.length($selectors));
+  @return $namespace;
 }

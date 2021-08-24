@@ -2,19 +2,16 @@
 
 @use "node_modules/Sass-Boost/dist/sass-boost";
 
-@use "../config";
-
 /// Remove modifiers from a selector
 ///
 /// @param {list} $selector - The selector from which to remove modifiers
-@function remove-modifiers($selector) {
-  // convert selector to a string
-  $selector: #{nth($selector, 1)};
+@function remove-modifiers($selector, $modifierGlue) {
+  $selector: #{$selector};
 
   $modifier: '';
 
   // Find out where the first modifier starts
-  $modifier-index: string.index($selector, '"#{config.$modifierGlue}');
+  $modifier-index: string.index($selector, '"#{$modifierGlue}');
 
   @if $modifier-index {
     // Strip the first part of the selector up until the first modifier
@@ -29,7 +26,7 @@
     // Remove junk characters
     $selector: sass-boost.str-replace($selector, '[class*=]', '');
     // Recurse the function to eliminate any remainig modifiers
-    $selector: remove-modifiers($selector);
+    $selector: remove-modifiers($selector, $modifierGlue);
   }
 
   @return $selector;
