@@ -7,16 +7,12 @@
 /// @param {string} $module - The module you wish to create
 /// @param {map} $content
 /// @param {map} $config
-@mixin module(
-  $module,
-  $content: (),
-  $config: ()
-) {
-  $nested: &; // @TODO needs to identify if nested within itself, not nested in general
+@mixin module($module, $content: (), $config: ()) {
+  $nested: &;
   $selectors: ();
 
   @if not $module {
-    $module: map.get($config, 'name');
+    $module: map.get($config, "name");
   }
 
   @if ($moduleNamespace) {
@@ -25,12 +21,16 @@
 
   // We are creating a root module, so create a global variable
   @if not $nested {
-    $module: $module !global; 
+    $module: $module !global;
     $this: $module !global;
   }
 
-  $selectors: list.join($selectors, '.#{$module}', comma);
-  $selectors: list.join($selectors, '[class*=".#{$module}#{$modifierGlue}"]', comma);
+  $selectors: list.join($selectors, ".#{$module}", comma);
+  $selectors: list.join(
+    $selectors,
+    '[class*=".#{$module}#{$modifierGlue}"]',
+    comma
+  );
 
   #{$selectors} {
     @if not $nested {
@@ -49,20 +49,20 @@
 /// @param {map} $config
 @mixin module-content($module, $config) {
   /// Extend modifiers into the naked module
-  @if map.get($config, 'modifiers') {
-    @include extend(map.get($config, 'modifiers'));
+  @if map.get($config, "modifiers") {
+    @include extend(map.get($config, "modifiers"));
   }
 
   /// Combine modifiers into a new, single modifier
-  @if map.get($config, 'combine') {
-    @each $new-modifier, $target-modifiers in map.get($config, 'combine') {
+  @if map.get($config, "combine") {
+    @each $new-modifier, $target-modifiers in map.get($config, "combine") {
       @include modifier($new-modifier) {
         @include extend(($target-modifiers));
       }
     }
   }
 
-  @if $outputCSSFromConfig and $module == map.get($config, 'name') {
+  @if $outputCSSFromConfig and $module == map.get($config, "name") {
     @include parse-cq($config);
   }
 }

@@ -22,7 +22,6 @@
 ) {
   $prev-namespace: utils.get-namespace(&, $modifierGlue);
   $module-name: utils.get-module($prev-namespace, $componentGlue);
-  $namespace: if($sub-component, $prev-namespace, $module-name);
   $selectors: '[class*=".#{$module-name}#{$glue}"]';
   $parents: ();
 
@@ -30,10 +29,15 @@
     $selectors: ();
 
     @each $component in $components {
-      $selector: '.#{$namespace}#{$glue}#{$component}, [class*=".#{$namespace}#{$glue}#{$component}#{$modifierGlue}"]';
+      $new-namespace: #{if(
+          $sub-component,
+          $prev-namespace,
+          $module-name
+        )}#{$glue}#{$component};
+      $selector: '.#{$new-namespace}, [class*=".#{$new-namespace}#{$modifierGlue}"]';
 
       @if not $cascade {
-        $selector: '> #{$selector}';
+        $selector: "> #{$selector}";
       }
 
       $selectors: list.join($selectors, $selector, comma);
@@ -42,19 +46,23 @@
 
   @each $selector in & {
     // spoof the selector into a list
-    $selector: selector.parse(sass-boost.str-replace(#{$selector}, ' ', ', '));
+    $selector: selector.parse(sass-boost.str-replace(#{$selector}, " ", ", "));
 
     $last-item: list.nth($selector, list.length($selector));
     $is-modifier: string.index(#{$last-item}, '[class*="#{$modifierGlue}');
-    $is-pseudo-state: string.index(#{$last-item}, ':');
+    $is-pseudo-state: string.index(#{$last-item}, ":");
 
-    @if not ($is-modifier or $is-pseudo-state) {
+    @if not($is-modifier or $is-pseudo-state) {
       $selector: sass-boost.list-remove($selector, $last-item);
     }
 
     // Re-build the parent selector
     @if list.length($selector) > 0 {
-      $parents: list.append($parents, sass-boost.str-replace(#{$selector}, ', ', ' '), comma);
+      $parents: list.append(
+        $parents,
+        sass-boost.str-replace(#{$selector}, ", ", " "),
+        comma
+      );
     }
   }
 
@@ -66,8 +74,7 @@
 
       @include parse-cq($content);
     }
-  }
-  @else {
+  } @else {
     @at-root #{$parents} {
       #{$selectors} {
         @content;

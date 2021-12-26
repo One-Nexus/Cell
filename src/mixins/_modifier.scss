@@ -8,8 +8,7 @@
 ///
 /// @param {string|list} $modifiers  - The modifier(s) which you wish to create
 /// @param {bool} $glue ['--'] - Desired modifier separator/glue
-/// @param {string} $module
-@mixin modifier($modifiers, $glue: $modifierGlue, $module: $module) {
+@mixin modifier($modifiers, $glue: $modifierGlue) {
   $scope: &;
   $namespace: utils.get-namespace(&, $modifierGlue);
   $modifiers-chunk: ();
@@ -43,14 +42,10 @@
 
 /// Alias for modifier() mixin
 @mixin modifiers($args...) {
-  @include modifier($args...) {
-    @content;
-  }
+  @include modifier($args...) { @content; }
 }
 
 /// Alias for modifier() mixin
 @mixin is($args...) {
-  @include modifier($args...) {
-    @content;
-  }
+  @include modifier($args...) { @content; }
 }

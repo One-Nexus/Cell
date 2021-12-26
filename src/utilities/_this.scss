@@ -6,13 +6,13 @@
 ///
 /// @param {arglist} $options
 @function this($options...) {
-  $value: '';
+  $value: "";
 
-  @if (meta.variable-exists('config')) {
+  @if (meta.variable-exists("config") and $config) {
     $value: sass-boost.map-get-deep($config, $options...);
   }
 
-  @if (meta.variable-exists('sassConfigParser') and $sassConfigParser) {
+  @if (meta.variable-exists("sassConfigParser") and $sassConfigParser) {
     $value: meta.call(meta.get-function($sassConfigParser), $value);
   }
 

@@ -15,11 +15,11 @@
   $pipeContexts: false
 ) {
   $selector: ();
-  $pipedContexts: '';
+  $pipedContexts: "";
   $namespace: get-namespace-from-list($block, $componentGlue);
   $chunk: '[class*=".#{$namespace}#{$modifierGlue}"]';
 
-  @if $context == '' {
+  @if $context == "" {
     $context: null;
   }
 
@@ -28,40 +28,38 @@
     $excludeRootSelector: false;
 
     @each $item in $context {
-      @if string.index($item, ':') == 1 {
+      @if string.index($item, ":") == 1 {
         $pipedContexts: $pipedContexts + $item;
-      }
-      @else {
+      } @else {
         $excludeRootSelector: true;
         $pipedContexts: $pipedContexts + '[class*="#{$modifierGlue}#{$item}"]';
       }
     }
 
     // unlike modifier chunks, pseudo states require the root module selector
-    @if meta.type-of($block) == 'string' and not $excludeRootSelector {
+    @if meta.type-of($block) == "string" and not $excludeRootSelector {
       $selector: '.#{$block}#{$pipedContexts}, [class*=".#{$block}#{$modifierGlue}"]#{$pipedContexts}';
+    } @else {
+      $selector: "#{$chunk}#{$pipedContexts}";
     }
-    @else {
-      $selector: '#{$chunk}#{$pipedContexts}';
-    }
-  }
-
-  @else {
+  } @else {
     @if $context {
       @each $item in $context {
-        @if string.index($item, ':') == 1 {
-          @if meta.type-of($block) == 'string' {
-            $selector: list.append($selector, '.#{$block}#{$item}', comma);
+        @if string.index($item, ":") == 1 {
+          @if meta.type-of($block) == "string" {
+            $selector: list.append($selector, ".#{$block}#{$item}", comma);
           }
-          $selector: list.append($selector, '#{$chunk}#{$item}', comma);
-        }
-        @else {
-          $selector: list.append($selector, '#{$chunk}[class*="#{$modifierGlue}#{$item}"]', comma);
+          $selector: list.append($selector, "#{$chunk}#{$item}", comma);
+        } @else {
+          $selector: list.append(
+            $selector,
+            '#{$chunk}[class*="#{$modifierGlue}#{$item}"]',
+            comma
+          );
         }
       }
-    }
-    @else {
-      $selector: list.append($selector, '.#{$namespace}', comma);
+    } @else {
+      $selector: list.append($selector, ".#{$namespace}", comma);
       $selector: list.append($selector, $chunk, comma);
     }
   }
@@ -73,12 +71,12 @@
 ///
 /// @param {string|list} $block
 @function get-namespace-from-list($block, $componentGlue) {
-  @if meta.type-of($block) == 'list' {  
-    $namespace: '';
+  @if meta.type-of($block) == "list" {
+    $namespace: "";
 
     @for $i from 1 through list.length($block) {
       $item: list.nth($block, $i);
-      $namespace: if($i == 1, $item, '#{$namespace}#{$componentGlue}#{$item}');
+      $namespace: if($i == 1, $item, "#{$namespace}#{$componentGlue}#{$item}");
     }
 
     @return $namespace;
