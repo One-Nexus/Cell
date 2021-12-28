@@ -4,11 +4,14 @@
 ///
 /// @param {string} $query
 @function remove-junk($query, $modifierGlue) {
-  $query: sass-boost.str-replace($query, '.', '');
-  $query: sass-boost.str-replace($query, '[class*="#{$modifierGlue}', '');
-  $query: sass-boost.str-replace($query, '[class*="', '');
-  $query: sass-boost.str-replace($query, '#{$modifierGlue}"]', '');
-  $query: sass-boost.str-replace($query, '"]', '');
+  $query: sass-boost.str-replace($query, ".", "");
+  $query: sass-boost.str-replace($query, '[class*="#{$modifierGlue}', "");
+  $query: sass-boost.str-replace($query, '[class*="', "");
+  $query: sass-boost.str-replace($query, '#{$modifierGlue}"]', "");
+  $query: sass-boost.str-replace($query, '"]', "");
+
+  $query: sass-boost.str-replace($query, "[class*=", "");
+  $query: sass-boost.str-replace($query, "#{$modifierGlue}]", "");
 
   @return $query;
 }

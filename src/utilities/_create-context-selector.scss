@@ -17,7 +17,7 @@
   $selector: ();
   $pipedContexts: "";
   $namespace: get-namespace-from-list($block, $componentGlue);
-  $chunk: '[class*=".#{$namespace}#{$modifierGlue}"]';
+  $chunk: '[class*="#{$namespace}#{$modifierGlue}"]';
 
   @if $context == "" {
     $context: null;
@@ -38,7 +38,7 @@
 
     // unlike modifier chunks, pseudo states require the root module selector
     @if meta.type-of($block) == "string" and not $excludeRootSelector {
-      $selector: '.#{$block}#{$pipedContexts}, [class*=".#{$block}#{$modifierGlue}"]#{$pipedContexts}';
+      $selector: '.#{$block}#{$pipedContexts}, [class*="#{$block}#{$modifierGlue}"]#{$pipedContexts}';
     } @else {
       $selector: "#{$chunk}#{$pipedContexts}";
     }
@@ -51,11 +51,7 @@
           }
           $selector: list.append($selector, "#{$chunk}#{$item}", comma);
         } @else {
-          $selector: list.append(
-            $selector,
-            '#{$chunk}[class*="#{$modifierGlue}#{$item}"]',
-            comma
-          );
+          $selector: list.append($selector, '#{$chunk}[class*="#{$modifierGlue}#{$item}"]', comma);
         }
       }
     } @else {

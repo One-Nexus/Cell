@@ -22,25 +22,22 @@
 ) {
   $prev-namespace: utils.get-namespace(&, $modifierGlue);
   $module-name: utils.get-module($prev-namespace, $componentGlue);
-  $selectors: '[class*=".#{$module-name}#{$glue}"]';
+  $selectors: '[class*="#{$module-name}#{$glue}"]';
   $parents: ();
 
   @if $components {
     $selectors: ();
 
     @each $component in $components {
-      $new-namespace: #{if(
-          $sub-component,
-          $prev-namespace,
-          $module-name
-        )}#{$glue}#{$component};
-      $selector: '.#{$new-namespace}, [class*=".#{$new-namespace}#{$modifierGlue}"]';
+      $new-namespace: #{if($sub-component, $prev-namespace, $module-name)}#{$glue}#{$component};
 
-      @if not $cascade {
-        $selector: "> #{$selector}";
+      @if $cascade {
+        $selectors: list.join($selectors, ".#{$new-namespace}", comma);
+        $selectors: list.join($selectors, "[class*='#{$new-namespace}#{$modifierGlue}']", comma);
+      } @else {
+        $selectors: list.join($selectors, "> .#{$new-namespace}", comma);
+        $selectors: list.join($selectors, "> [class*='#{$new-namespace}#{$modifierGlue}']", comma);
       }
-
-      $selectors: list.join($selectors, $selector, comma);
     }
   }
 
@@ -58,11 +55,7 @@
 
     // Re-build the parent selector
     @if list.length($selector) > 0 {
-      $parents: list.append(
-        $parents,
-        sass-boost.str-replace(#{$selector}, ", ", " "),
-        comma
-      );
+      $parents: list.append($parents, sass-boost.str-replace(#{$selector}, ", ", " "), comma);
     }
   }
 

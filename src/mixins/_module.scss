@@ -26,11 +26,7 @@
   }
 
   $selectors: list.join($selectors, ".#{$module}", comma);
-  $selectors: list.join(
-    $selectors,
-    '[class*=".#{$module}#{$modifierGlue}"]',
-    comma
-  );
+  $selectors: list.join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
 
   #{$selectors} {
     @if not $nested {
