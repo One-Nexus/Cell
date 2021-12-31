@@ -1,22 +1,24 @@
 @use "sass:list";
 @use "sass:map";
 @use "sass:meta";
+@use "sass:string";
 
 /// Create a new module
 ///
 /// @param {string} $module - The module you wish to create
 /// @param {map} $content
 /// @param {map} $config
-@mixin module($module, $content: (), $config: ()) {
+@mixin module($module: null, $content: (), $config: ()) {
   $nested: &;
   $selectors: ();
+  $uid: string.unique-id();
 
   @if not $module {
-    $module: map.get($config, "name");
-  }
-
-  @if ($moduleNamespace) {
-    $module: $moduleNamespace + $module;
+    @if (map.has-key($config, "name")) {
+      $module: map.get($config, "name");
+    } @else {
+      $module: $uid;
+    }
   }
 
   // We are creating a root module, so create a global variable
@@ -43,6 +45,7 @@
 ///
 /// @param {string|list} $module
 /// @param {map} $config
+/// @param {string} $uid
 @mixin module-content($module, $config) {
   /// Extend modifiers into the naked module
   @if map.get($config, "modifiers") {

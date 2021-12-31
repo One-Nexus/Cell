@@ -8,14 +8,12 @@
 /// @param {string} $parent [null] - The parent module if not current one
 /// @param {bool} $core [false] - Extend the core '.module' styles?
 @mixin extend($modifiers: null, $parent: null, $core: false) {
-  $namespaced-parent: if($moduleNamespace and $parent, $moduleNamespace + $parent, $parent);
-
   @if $core or not $modifiers {
-    @extend .#{$namespaced-parent};
+    @extend .#{$parent};
   }
 
   @each $modifier in $modifiers {
-    $namespace: if($parent, $namespaced-parent, $module);
+    $namespace: if($parent, $parent, $module);
 
     @extend %#{$namespace}-#{$modifier};
   }

@@ -1,6 +1,6 @@
 {
   "name": "@onenexus/cell",
-  "version": "1.0.0-beta.21",
+  "version": "1.0.0-beta.22",
   "description": "Style BEM DOM elements using Sass",
   "main": "dist/_synergy.scss",
   "author": "(Edmund Reed)[http://twitter.com/esr360] <esr360@live.com>",
@@ -8,6 +8,7 @@
   "keywords": [
     "sass",
     "scss",
+    "css",
     "OOCSS",
     "BEM",
     "modular",
@@ -15,8 +16,12 @@
     "components",
     "front-end",
     "framework",
+    "react",
     "web",
-    "synergy"
+    "synergy",
+    "css-in-js",
+    "vanilla-extract",
+    "design-systems"
   ],
   "bugs": {
     "url": "https://github.com/One-Nexus/Cell/issues"
@@ -44,6 +49,7 @@
     "test": "mocha test/tests.js",
     "docs": "sassdoc src/ -d docs/sass --theme flippant",
     "sass": "node ./build/sass-concat.js",
-    "build": "npm run lint && npm test && npm run docs && npm run sass"
+    "x": "npm run lint && npm test && npm run docs && npm run sass",
+    "build": "npm test && npm run docs && npm run sass"
   }
 }
