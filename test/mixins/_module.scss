@@ -12,7 +12,7 @@
     @include module("foo") {
       $result: #{&};
     }
-    @include assert-equal($result, ".foo, [class*=.foo--]");
+    @include assert-equal($result, ".foo, [class*=foo--]");
   }
 
   @include it("Outputs expected selectors when multiple modules passed") {

@@ -27,8 +27,10 @@
     $this: $module !global;
   }
 
-  $selectors: list.join($selectors, ".#{$module}", comma);
-  $selectors: list.join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
+  @each $module in $module {
+    $selectors: join($selectors, ".#{$module}", comma);
+    $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
+  }
 
   #{$selectors} {
     @if not $nested {

@@ -30,14 +30,13 @@
 
     @each $component in $components {
       $new-namespace: #{if($sub-component, $prev-namespace, $module-name)}#{$glue}#{$component};
+      $selector: '.#{$new-namespace}, [class*="#{$new-namespace}#{$modifierGlue}"]';
 
-      @if $cascade {
-        $selectors: list.join($selectors, ".#{$new-namespace}", comma);
-        $selectors: list.join($selectors, "[class*='#{$new-namespace}#{$modifierGlue}']", comma);
-      } @else {
-        $selectors: list.join($selectors, "> .#{$new-namespace}", comma);
-        $selectors: list.join($selectors, "> [class*='#{$new-namespace}#{$modifierGlue}']", comma);
+      @if not $cascade {
+        $selector: "> #{$selector}";
       }
+
+      $selectors: join($selectors, $selector, comma);
     }
   }
 
