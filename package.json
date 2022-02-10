@@ -33,7 +33,7 @@
   "devDependencies": {
     "concat": "^1.0.3",
     "mocha": "^6.2.2",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "sass-true": "^5.0.0",
     "sassdoc": "^2.5.0",
     "sassdoc-theme-flippant": "^0.1.0",
