@@ -13,6 +13,8 @@
   $selectors: ();
   $uid: string.unique-id();
 
+  $useScopeAsNamespace: true;
+
   @if not $module {
     @if (map.has-key($config, "name")) {
       $module: map.get($config, "name");
@@ -21,19 +23,26 @@
     }
   }
 
+  $namespace: $module;
+
+  $scopeId: if(
+    map.has-key($config, "scope"), 
+    map.get($config, "scope"), 
+    if(global-variable-exists('scope'), $scope, null)
+  );
+
+  @if ($scopeId) {
+    $namespace: if($useScopeAsNamespace, $scopeId, #{$scopeId}-#{$namespace});
+  }
+
   // We are creating a root module, so create a global variable
   @if not $nested {
     $module: $module !global;
+    $globalNamespace: $namespace !global;
     $this: $module !global;
   }
 
   @each $module in $module {
-    $namespace: $module;
-
-    @if (map.has-key($config, "scope")) {
-      $namespace: #{map.get($config, "scope")}-#{$namespace}
-    }
-
     $selectors: join($selectors, ".#{$namespace}", comma);
     $selectors: join($selectors, '[class*="#{$namespace}#{$modifierGlue}"]', comma);
   }

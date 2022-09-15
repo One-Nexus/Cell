@@ -57,7 +57,7 @@
       $parents: list.append($parents, sass-boost.str-replace(#{$selector}, ", ", " "), comma);
     }
   }
-
+  
   $parents: sass-boost.list-remove-duplicates($parents);
 
   @if list.length($parents) == 0 {

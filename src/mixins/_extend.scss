@@ -13,7 +13,7 @@
   }
 
   @each $modifier in $modifiers {
-    $namespace: if($parent, $parent, $module);
+    $namespace: if($parent, $parent, $globalNamespace);
 
     @extend %#{$namespace}-#{$modifier};
   }

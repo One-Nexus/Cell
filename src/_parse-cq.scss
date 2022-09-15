@@ -18,7 +18,7 @@
     @if meta.type-of($property) == 'string' {
       // $property is for parent wrapper/group element
       @if $property == 'group' or $property == 'wrapper' {
-        @include wrapper($property, if($prevContext, $prevContext, $module)) {
+        @include wrapper($property, if($prevContext, $prevContext, $globalNamespace)) {
           @include parse-cq($value);
         }
       }
@@ -38,8 +38,8 @@
           sass-boost.str-replace($property, '$-is-', '')
         );
 
-        @include context($module, $context) {
-          @include parse-cq($value, $prevContext: ($module, $context));
+        @include context($globalNamespace, $context) {
+          @include parse-cq($value, $prevContext: ($globalNamespace, $context));
         }
       }
 
@@ -101,7 +101,7 @@
         $block: if(
           string.index($component, '$') == 1, 
           string.slice($component, 2), 
-          $module
+          $globalNamespace
         );
 
         $context: if(
@@ -126,7 +126,7 @@
         $context: if(
           string.index($component, '$') == 1, 
           string.slice($component, 2), 
-          ($module, $component)
+          ($globalNamespace, $component)
         );
 
         @include context($context) {
