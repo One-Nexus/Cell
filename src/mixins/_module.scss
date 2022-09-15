@@ -13,7 +13,11 @@
   $selectors: ();
   $uid: string.unique-id();
 
-  $useScopeAsNamespace: true;
+  $useScopeAsNamespace: if(
+    global-variable-exists('theme') and map.has-key($theme, "useScopeAsNamespace"), 
+    map.get($theme, "useScopeAsNamespace"),
+    false
+  );
 
   @if not $module {
     @if (map.has-key($config, "name")) {
