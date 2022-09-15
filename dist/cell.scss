@@ -347,17 +347,11 @@
 @function strip-unit($value) {
     @return $value / ($value * 0 + 1);
 }
-// Prepend all selectors with a namespace
-$moduleNamespace: null !default;
-
 // Set the glue to chain modifiers to modules
-$modifierGlue: '--' !default;
+$modifierGlue: "--" !default;
 
 // Set the glue to chain components to modules
-$componentGlue: '__' !default;
-
-// Extend each module option as a modifier by default?
-$extendOptions: true !default;
+$componentGlue: "__" !default;
 
 // Custom parser to use for configuration
 $sassConfigParser: null !default;
@@ -367,6 +361,178 @@ $outputCSSFromConfig: false !default;
 
 // The variable to hold a single module (do not edit)
 $module: null !default;
+
+@use "sass:selector";
+@use "sass:list";
+@use "sass:meta";
+@use "sass:map";
+@use "sass:string";
+
+@use "node_modules/Sass-Boost/dist/sass-boost";
+
+@use "utilities/utils";
+
+/// Parse CQ
+///
+/// @param {map} $map - The map from which to parse CQ
+/// @param {bool} $sub-component
+/// @param {bool} $prevContext
+@mixin parse-cq($map, $sub-component: false, $prevContext: false) {
+  @each $property, $value in $map {
+    @if meta.type-of($property) == 'string' {
+      // $property is for parent wrapper/group element
+      @if $property == 'group' or $property == 'wrapper' {
+        @include wrapper($property, if($prevContext, $prevContext, $module)) {
+          @include parse-cq($value);
+        }
+      }
+
+      // Determine if current node is queried modifier/state
+      @else if string.index($property, 'is-') == 1 {
+        @include modifier(sass-boost.str-replace($property, 'is-', '')) {
+          @include parse-cq($value);
+        }
+      }
+
+      // Determine if parent module/block is queried modifier/state
+      @else if string.index($property, '$-is-') == 1 or string.index($property, '$:') == 1 {
+        $context: if(
+          string.index($property, '$:') == 1, 
+          sass-boost.str-replace($property, '$', ''), 
+          sass-boost.str-replace($property, '$-is-', '')
+        );
+
+        @include context($module, $context) {
+          @include parse-cq($value, $prevContext: ($module, $context));
+        }
+      }
+
+      // Determine if previously specified parent component is queried modifier/state
+      @else if string.index($property, 'and-is-') == 1 or string.index($property, 'and:') == 1 {
+        $context: if(
+          string.index($property, 'and-is-'),
+          sass-boost.str-replace($property, 'and-is-', ''),
+          string.slice($property, string.index($property, ':'), string.length($property))
+        );
+
+        $prevContextBlock: list.nth($prevContext, 1);
+        $prevContextContext: list.nth($prevContext, 2);
+        $newContext: list.append($prevContextContext, $context);
+
+        $prevChunk: utils.create-context-selector(
+          $prevContextBlock, $prevContextContext, $modifierGlue, $componentGlue
+        );
+
+        $newChunk: utils.create-context-selector(
+          $prevContextBlock, $newContext, $modifierGlue, $componentGlue, $pipeContexts: true
+        );
+
+        $selector: ();
+
+        @each $pChunk in $prevChunk {
+          @each $chunk in selector.parse(sass-boost.str-replace(#{$newChunk}, ' ', ', ')) {
+            @if string.index(#{$chunk}, $pChunk) == 1 {
+              @each $item in & {
+                @if string.index(#{$item}, $pChunk) {
+                  $selector: list.append($selector, selector.replace($item, $pChunk, $chunk), comma);
+                }
+              }
+            }
+          }
+        }
+
+        @at-root {
+          #{$selector} {
+            @include parse-cq($value, $prevContext: ($prevContextBlock, $newContext));
+          }
+        }
+      }
+
+      // Determine if specified parent component/module is queried modifier/state
+      @else if str-index($property, '-is-') or (string.index($property, ':') and string.index($property, ':') > 1) {
+        $component: if(
+          string.index($property, ':'),
+          string.slice($property, 1, string.index($property, ':') - 1),
+          string.slice($property, 1, string.index($property, '-is-') - 1)
+        );
+
+        $contextVal: if(
+          string.index($property, ':'),
+          string.slice($property, string.index($property, ':'), string.length($property)),
+          string.slice($property, string.index($property, '-is-') + 4, string.length($property))
+        );
+
+        $block: if(
+          string.index($component, '$') == 1, 
+          string.slice($component, 2), 
+          $module
+        );
+
+        $context: if(
+          string.index($component, '$') == 1, 
+          ($block, $contextVal), 
+          (($block, $component), $contextVal)
+        );
+
+        @if $component == 'group' or $component == 'wrapper' {
+          $context: ($component, ($prevContext, $contextVal), true);
+        }
+
+        @include context($context...) {
+          @include parse-cq($value, $prevContext: $context);
+        }
+      }
+
+      // Determine if current node is a child of the queried component/module
+      @else if string.index($property, 'in-') == 1 {
+        $component: sass-boost.str-replace($property, 'in-', '');
+
+        $context: if(
+          string.index($component, '$') == 1, 
+          string.slice($component, 2), 
+          ($module, $component)
+        );
+
+        @include context($context) {
+          @include parse-cq($value, $prevContext: ($context, ''));
+        }
+      }
+
+      // $property defines pseudo-state/pseudo-element
+      @else if string.index($property, ':') == 1 {
+        @include pseudo-state(sass-boost.str-replace($property, ':', '')) {
+          @include parse-cq($value);
+        }
+      }
+
+      // $property defines .active styles
+      @else if $property == 'active' {
+        @include modifier('active') {
+          @include parse-cq($value);
+        }
+      }
+
+      // $property is for a component
+      @else if meta.type-of($value) == 'map' {
+        @include component($property, $sub-component: $sub-component) {
+          @include parse-cq($value, $sub-component: true, $prevContext: $property);
+        }
+      }
+
+      // $property is a valid CSS property
+      @else if list.index(utils.$css-properties, $property) {
+        @if meta.type-of($value) != 'map' {
+          // for before/after pseudo elements
+          @if $property == 'content' {
+            $value: '"#{$value}"';
+          }
+
+          #{$property}: $value;
+        }
+      }
+    }
+  }
+}
 /// Cell Atom - Display property
 ///
 /// @param {list} $context - The desired context/condition
@@ -403,167 +569,89 @@ $module: null !default;
     visibility: $value;
   }
 }
-/// Used to merge a module's default configuration with any custom
-/// values passed to the module
-///
-/// @param {map} $map-old - The map which holds default configuration
-/// @param {map} $map-new - The map which holds custom values
-/// @param {string} $parser - Custom parser to use for configuration
-@function create-config($map-old: (), $map-new: (), $parser: $sassConfigParser) {
-  $map-old: map-merge((
-    'extendOptions' : $extendOptions
-  ), $map-old);
+@use "sass:list";
+@use "sass:meta";
+@use "sass:string";
 
-  // Merge theme values
-  @if variable-exists('theme') and not variable-exists('CellThemeProcessed') {
-    @if map-has-key($theme, 'modules') {
-      $map-old: map-merge-deep($map-old, map-get-deep($theme, 'modules', map-get($map-old, 'name')));
-    }
-  }
-
-  // Merge default and custom options
-  $map-merged: map-merge-deep($map-old, $map-new);
-
-  // Evaluate configuration values
-  $map-merged: eval-config($map-merged);
-
-  // Evaluate configuration values
-  @if ($parser) {
-    $map-merged: call(get-function($parser), $map-merged);
-  }
-
-  // Store config in global variable
-  $config: $map-merged !global;
-  $smart-config: smart-config($config) !global;
-
-  // Return merged map
-  @return $map-merged;
-}
-
-/// Evaluate properties from function-calls
-@function eval-config($config) {
-  $evaluated-config: ();
-
-  @each $key, $value in $config {
-    @if type-of($value) == 'map' {
-      $evaluated-config: map-set($evaluated-config, $key, eval-config($value));
-    }
-
-    @else {
-      @if type-of($value) == 'list' and type-of(nth($value, 1)) == 'string' and function-exists(nth($value, 1)) {
-        $value: call(get-function(nth($value, 1)), nth($value, 2)...);
-      }
-
-      $evaluated-config: map-set($evaluated-config, $key, $value);
-    }
-  }
-
-  @return $evaluated-config;
-}
-
-/// Convert configuration keys such as `component(item)` into the
-/// paramater name, i.e. `item`, so they can be retreived with `this()`
-@function smart-config($config) {
-  $smart-config: ();
-
-  @each $key, $value in $config {
-    @if type-of($value) == 'map' {
-      $smart-config: map-set($smart-config, get-param($key), smart-config($value));
-    }
-
-    @else {
-      @if type-of($key) == 'string' {
-        $key: get-param($key);
-      }
-
-      $smart-config: map-set($smart-config, $key, $value);
-    }
-  }
-
-  @return $smart-config;
-}
 /// Used to create a selector from context() arguments
 ///
-/// @param {(string|list)} $block - The name of the module/component that has the context
+/// @param {string|list} $block - The name of the module/component that has the context
 /// @param {string} $context - The context you wish to test
-/// @param {bool} $pipeContexts
-@function create-selector-from-context($block, $context: null, $pipeContexts: false) {
+/// @param {bool} $pipeContexts - Pipe modifier chunks together
+@function create-context-selector(
+  $block,
+  $context: null,
+  $modifierGlue,
+  $componentGlue,
+  $pipeContexts: false
+) {
   $selector: ();
-  $pipedContexts: '';
-  $excludeRootSelector: false;
+  $pipedContexts: "";
+  $namespace: get-namespace-from-list($block, $componentGlue);
+  $chunk: '[class*="#{$namespace}#{$modifierGlue}"]';
 
-  @if $context == '' {
+  @if $context == "" {
     $context: null;
   }
 
+  // Pipe contexts together - for when they should be applied at the same time
   @if $pipeContexts {
+    $excludeRootSelector: false;
+
     @each $item in $context {
-      @if str-index($item, ':') == 1 {
+      @if string.index($item, ":") == 1 {
         $pipedContexts: $pipedContexts + $item;
-      }
-      @else {
+      } @else {
         $excludeRootSelector: true;
         $pipedContexts: $pipedContexts + '[class*="#{$modifierGlue}#{$item}"]';
       }
     }
-    @if type-of($block) == 'string' and not $excludeRootSelector {
-      $selector: '.#{$block}#{$pipedContexts}, [class*="#{$block}#{$modifierGlue}"]#{$pipedContexts}';
-    }
-    @else {
-      $selector: '#{generate-chunk($block)}#{$pipedContexts}';
-    }
-  }
 
-  @else {
+    // unlike modifier chunks, pseudo states require the root module selector
+    @if meta.type-of($block) == "string" and not $excludeRootSelector {
+      $selector: '.#{$block}#{$pipedContexts}, [class*="#{$block}#{$modifierGlue}"]#{$pipedContexts}';
+    } @else {
+      $selector: "#{$chunk}#{$pipedContexts}";
+    }
+  } @else {
     @if $context {
       @each $item in $context {
-        @if str-index($item, ':') == 1 {
-          @if type-of($block) == 'string' {
-            $selector: append($selector, '.#{$block}#{$item}', comma);
+        @if string.index($item, ":") == 1 {
+          @if meta.type-of($block) == "string" {
+            $selector: list.append($selector, ".#{$block}#{$item}", comma);
           }
-          $selector: append($selector, '#{generate-chunk($block)}#{$item}', comma);
+          $selector: list.append($selector, "#{$chunk}#{$item}", comma);
+        } @else {
+          $selector: list.append($selector, '#{$chunk}[class*="#{$modifierGlue}#{$item}"]', comma);
         }
-        @else {
-          $selector: append($selector, '#{generate-chunk($block)}[class*="#{$modifierGlue}#{$item}"]', comma);
-        }
       }
-    }
-    @else {
-      @if type-of($block) == 'string' {
-        $selector: append($selector, '.#{$block}', comma);
-        $selector: append($selector, '[class*="#{$block}#{$modifierGlue}"]', comma);
-      }
-      @else {
-        $selector: append($selector, generate-chunk($block), comma);
-      }
+    } @else {
+      $selector: list.append($selector, ".#{$namespace}", comma);
+      $selector: list.append($selector, $chunk, comma);
     }
   }
 
   @return $selector;
 }
 
-/// Generate a selector chunk from a $block list
+/// Get the namespace from a $block list
 ///
-/// @param {(string|list)} $block
-@function generate-chunk($block) {
-  $chunk: '';
+/// @param {string|list} $block
+@function get-namespace-from-list($block, $componentGlue) {
+  @if meta.type-of($block) == "list" {
+    $namespace: "";
 
-  @if type-of($block) == 'list' {
-    @for $i from 1 through length($block) {
-      @if $i == 1 {
-        $chunk: $chunk + '[class*="#{nth($block, $i)}#{$componentGlue}"]';
-      }
-      @else {
-        $chunk: $chunk + '[class*="#{$componentGlue}#{nth($block, $i)}"]';
-      }
+    @for $i from 1 through list.length($block) {
+      $item: list.nth($block, $i);
+      $namespace: if($i == 1, $item, "#{$namespace}#{$componentGlue}#{$item}");
     }
-  }
-  @else {
-    $chunk: '[class*="#{$block}#{$modifierGlue}"]';
+
+    @return $namespace;
   }
 
-  @return $chunk;
+  @return $block;
 }
+
 /// List of known and valid CSS properties
 ///
 /// @type Map
@@ -1653,495 +1741,199 @@ $css-properties: (
   'z-index',
   'zoom'
 ) !default;
-/// Return a CSS property if the passed option is enabled
+@use "sass:string";
+
+/// Get the module from a namespace
 ///
-/// @param {string|list} $option - the desired option
-/// @returns {*} - $true-value if option enabled, otherwise returns $false-value
-@function enabled($option, $true-value, $false-value: '') {
-  $breadcrumb: ();
+/// @param {list} $selector - The selector from which to get the namespace
+@function get-module($namespace, $componentGlue) {
+  $slice-index: string.index($namespace, $componentGlue);
 
-  @each $crumb in $option {
-    $breadcrumb: join($breadcrumb, $crumb, comma);
-  }
-
-  @if value-enabled(map-get-deep($config, $breadcrumb...)) {
-    @return $true-value;
-  }
-  @else {
-    @return $false-value;
+  @if $slice-index {
+    @return string.slice($namespace, 1, $slice-index - 1);
+  } @else {
+    @return $namespace;
   }
 }
-/// Get the name of a module from a namespace
+@use "sass:selector";
+@use "sass:list";
+@use "sass:string";
+
+@use "node_modules/Sass-Boost/dist/sass-boost";
+
+@use "remove-modifiers";
+@use "remove-junk";
+
+/// Get the namespace from a selector
 ///
-/// @param {string} $namespace
-@function get-module-name($namespace) {
-  $modifier-index: str-index($namespace, $modifierGlue);
-  $component-index: str-index($namespace, $componentGlue);
+/// @param {list} $selector - The selector from which to get the namespace
+@function get-namespace($selector, $modifierGlue) {
+  $target-chunk: list.nth($selector, list.length($selector)); // incase of multiple chunks, take the last one
+  $cleaned-chunk: remove-modifiers.remove-modifiers($target-chunk, $modifierGlue);
+  $namespace: remove-junk.remove-junk($cleaned-chunk, $modifierGlue);
 
-  $slice-index: if($component-index, $component-index, $modifier-index);
+  @if string.index($namespace, ' ') {
+    $namespace: string.slice($namespace, string.index($namespace, ' ') + 1, string.length($namespace));
+  }
 
-  @return if($slice-index, str-slice($namespace, 0, $slice-index - 1), $namespace);
+  @return $namespace;
 }
-/// Get parmater from config string
-///
-/// @param {string} $source - the string from which to retrieve param
-@function get-param($source) {
-  @if str-index($source, 'component(') == 1 {
-    $source: str-replace($source, 'component(', '');
-    $source: str-replace($source, ')', '');
-  }
+@use "node_modules/Sass-Boost/dist/sass-boost";
 
-  @else if str-index($source, 'sub-component(') == 1 {
-    $source: str-replace($source, 'sub-component(', '');
-    $source: str-replace($source, ')', '');
-  }
-
-  @else if str-index($source, 'modifier(') == 1 {
-    $source: str-replace($source, 'modifier(', '');
-    $source: str-replace($source, ')', '');
-  }
-
-  @else if str-index($source, $componentGlue) == 1 {
-    $source: strip-glue($source, $componentGlue);
-  }
-
-  @else if str-index($source, $modifierGlue) == 1 {
-    $source: strip-glue($source, $modifierGlue);
-  }
-
-  @if type-of($source) == 'string' {
-    $source: str-replace($source, "'", '');
-  }
-
-  @return $source;
-}
-/// Merge maps containing module/component CSS
-///
-/// @param {map} $source
-/// @param {map} $target
-@function merge-css-maps($source, $target) {
-  $content: map-merge-deep($source, $target);
-
-  @if str-index(inspect($content), 'null') == null {
-    @each $property, $value in $content {
-      $dup-param: null;
-
-      @if str-index($property, $modifierGlue) == 1 {
-        $dup-param: $property;
-      }
-
-      @each $property, $value in $content {
-        @if str-index($property, 'modifier(') == 1 and $dup-param {
-          @if get-param($property) == get-param($dup-param) {
-            $merge-dup-param: map-merge-deep(map-get($content, $property), map-get($content, $dup-param));
-            $content: map-set($content, $dup-param, $merge-dup-param);
-            $content: map-remove($content, $property);
-          }
-        }
-      }
-    }
-  }
-
-  @return $content;
-}
-/// Create a namespace tree from a passed selector
-///
-/// @param {list} $selector - The selector from which to create the module tree
-@function module-tree($selector) {
-  $parent-module: $module;
-
-  // Remove any modifers
-  $selectors: remove-modifiers($selector);
-
-  // Remove any junk characters
-  $selectors: remove-junk($selectors);
-
-  // Spoof our selectors into a list
-  $selectors: str-replace($selectors, ' ', ', ');
-  $selectors: selector-parse($selectors);
-
-  @return $selectors;
-}
-/// Return the value of a module's option
-///
-/// @alias map-get-deep
-@function option($args...) {
-  @return map-get-deep($args...);
-}
 /// Remove junk characters from a selector string
 ///
 /// @param {string} $query
-@function remove-junk($query) {
-  $query: str-replace($query, '.', '');
-  $query: str-replace($query, '[class*="#{$modifierGlue}', '');
-  $query: str-replace($query, '[class*="', '');
-  $query: str-replace($query, '"]', '');
+@function remove-junk($query, $modifierGlue) {
+  $query: sass-boost.str-replace($query, ".", "");
+  $query: sass-boost.str-replace($query, '[class*="#{$modifierGlue}', "");
+  $query: sass-boost.str-replace($query, '[class*="', "");
+  $query: sass-boost.str-replace($query, '#{$modifierGlue}"]', "");
+  $query: sass-boost.str-replace($query, '"]', "");
+
+  $query: sass-boost.str-replace($query, "[class*=", "");
+  $query: sass-boost.str-replace($query, "#{$modifierGlue}]", "");
 
   @return $query;
 }
+
+@use "sass:string";
+
+@use "node_modules/Sass-Boost/dist/sass-boost";
+
 /// Remove modifiers from a selector
 ///
 /// @param {list} $selector - The selector from which to remove modifiers
-@function remove-modifiers($selector) {
-  // convert selector to a string
-  $selector: inspect(nth($selector, 1));
+@function remove-modifiers($selector, $modifierGlue) {
+  $selector: #{$selector};
 
   $modifier: '';
 
   // Find out where the first modifier starts
-  $modifier-index: str-index($selector, '"#{$modifierGlue}');
+  $modifier-index: string.index($selector, '"#{$modifierGlue}');
 
   @if $modifier-index {
     // Strip the first part of the selector up until the first modifier
-    $modifier: str-slice($selector, $modifier-index);
+    $modifier: string.slice($selector, $modifier-index);
     // Find out where the modifier ends
-    $modifier-end: str-index($modifier, '"]');
+    $modifier-end: string.index($modifier, '"]');
     // Isolate the modifier
-    $modifier: str-slice($modifier, 0, $modifier-end);
+    $modifier: string.slice($modifier, 0, $modifier-end);
+
     // Remove the modifier from the selector
-    $selector: str-replace($selector, $modifier, '');
+    $selector: sass-boost.str-replace($selector, $modifier, '');
     // Remove junk characters
-    $selector: str-replace($selector, '[class*=]', '');
+    $selector: sass-boost.str-replace($selector, '[class*=]', '');
     // Recurse the function to eliminate any remainig modifiers
-    $selector: remove-modifiers($selector);
+    $selector: remove-modifiers($selector, $modifierGlue);
   }
 
   @return $selector;
 }
-/// Parse CQ
-///
-/// @param {map} $map - The map from which to parse CQ
-/// @param {bool} $sub-component
-/// @param {bool} $prevContext
-@mixin parse-cq($map, $sub-component: false, $prevContext: false) {
-  @each $property, $value in $map {
-    @if type-of($property) == 'string' {
-      // $property defines new Modifier
-      @if str-index($property, 'modifier(') == 1 or str-index($property, $modifierGlue) == 1 {
-        @include modifier(get-param($property)) {
-          @include parse-cq($value);
-        }
-      }
+@use "sass:string";
 
-      // $property defines new Component
-      @else if str-index($property, 'component(') == 1 or str-index($property, $componentGlue) == 1 {
-        @include component(get-param($property)) {
-          @include parse-cq($value);
-        }
-      }
+@use "node_modules/Sass-Boost/dist/sass-boost";
 
-      // $property defines new Component
-      @else if str-index($property, 'sub-component(') == 1 {
-        @include sub-component(get-param($property)) {
-          @include parse-cq($value);
-        }
-      }
-
-      // $property is for parent wrapper/group element
-      @else if $property == 'group' or $property == 'wrapper' {
-        @include wrapper($property, if($prevContext, $prevContext, $module)) {
-          @include parse-cq($value);
-        }
-      }
-
-      // Determine if current node is queried modifier/state
-      @else if str-index($property, 'is-') == 1 {
-        @include modifier(str-replace($property, 'is-', '')) {
-          @include parse-cq($value);
-        }
-      }
-
-      // Determine if parent module/block is queried modifier/state
-      @else if str-index($property, '$-is-') == 1 or str-index($property, '$:') == 1 {
-        $context: if(str-index($property, '$:') == 1, str-replace($property, '$', ''), str-replace($property, '$-is-', ''));
-
-        @include context($module, $context) {
-          @include parse-cq($value, $prevContext: ($module, $context));
-        }
-      }
-
-      // Determine if previously specified parent component is queried modifier/state
-      @else if str-index($property, 'and-is-') == 1 or str-index($property, 'and:') == 1 {
-        $context: if(
-          str-index($property, 'and-is-'),
-          str-replace($property, 'and-is-', ''),
-          str-slice($property, str-index($property, ':'), str-length($property))
-        );
-        $prevContextVal: ('block': nth($prevContext, 1), 'context': nth($prevContext, 2));
-        $prevChunk: create-selector-from-context(map-get($prevContextVal, 'block'), map-get($prevContextVal, 'context'));
-        $newContextVal: append(map-get($prevContextVal, 'context'), $context);
-        $newChunk: create-selector-from-context(map-get($prevContextVal, 'block'), $newContextVal, $pipeContexts: true);
-
-        $selector: ();
-
-        @each $pChunk in $prevChunk {
-          @each $chunk in selector-parse(str-replace(inspect($newChunk), ' ', ', ')) {
-            @if str-index(inspect($chunk), $pChunk) == 1 {
-              @each $item in & {
-                @if str-index(inspect($item), $pChunk) {
-                  $selector: append($selector, selector-replace($item, $pChunk, $chunk), comma);
-                }
-              }
-            }
-          }
-        }
-
-        @at-root {
-          #{$selector} {
-            @include parse-cq($value, $prevContext: (map-get($prevContextVal, 'block'), $newContextVal));
-          }
-        }
-      }
-
-      // Determine if specified parent component/module is queried modifier/state
-      @else if str-index($property, '-is-') or (str-index($property, ':') and str-index($property, ':') > 1) {
-        $component: if(
-          str-index($property, ':'),
-          str-slice($property, 1, str-index($property, ':') - 1),
-          str-slice($property, 1, str-index($property, '-is-') - 1)
-        );
-        $contextVal: if(
-          str-index($property, ':'),
-          str-slice($property, str-index($property, ':'), str-length($property)),
-          str-slice($property, str-index($property, '-is-') + 4, str-length($property))
-        );
-        $block: if(str-index($component, '$') == 1, str-slice($component, 2), $module);
-        $context: if(str-index($component, '$') == 1, ($block, $contextVal), (($block, $component), $contextVal));
-
-        @if $component == 'group' or $component == 'wrapper' {
-          $context: ($component, ($prevContext, $contextVal), true);
-        }
-
-        @include context($context...) {
-          @include parse-cq($value, $prevContext: $context);
-        }
-      }
-
-      // Determine if current node is a child of the queried component/module
-      @else if str-index($property, 'in-') == 1 {
-        $component: str-replace($property, 'in-', '');
-        $context: if(str-index($component, '$') == 1, str-slice($component, 2), ($module, $component));
-
-        @include context($context) {
-          @include parse-cq($value, $prevContext: ($context, ''));
-        }
-      }
-
-      // $property defines pseudo-state/pseudo-element
-      @else if str-index($property, ':') == 1 {
-        @include pseudo-state(str-replace($property, ':', '')) {
-          @include parse-cq($value);
-        }
-      }
-
-      // $property defines .active styles
-      @else if $property == 'active' {
-        @include modifier('active') {
-          @include parse-cq($value);
-        }
-      }
-
-      // $property is for a component
-      @else if type-of($value) == 'map' {
-        @include component($property, $sub-component: $sub-component) {
-          @include parse-cq($value, $sub-component: true, $prevContext: $property);
-        }
-      }
-
-      // $property is a valid CSS property
-      @else if index($css-properties, $property) {
-        @if type-of($value) != 'map' {
-          // for before/after pseudo elements
-          @if $property == 'content' {
-            $value: '"#{$value}"';
-          }
-
-          #{$property}: $value;
-        }
-      }
-    }
-  }
-}
-/// Convert a selector into a map of modules, components and modifiers
+/// Shift pseudo-elements to the end of a selector
 ///
 /// @param {string} $selector
-@function selector-to-map($selector) {
-  $module-map: (
-    'module'   : null,
-    'component': null,
-    'modifiers': null
-  );
-
-  // Prepare selector for defragmentation
-  $cleaned-selector: inspect(nth($selector, length($selector)));
-  $cleaned-selector: selector-parse(str-replace($cleaned-selector, ' ', ', '));
-  $cleaned-selector: nth($cleaned-selector, length($cleaned-selector));
-  $cleaned-selector: remove-junk(inspect($cleaned-selector));
-
-  // Get and set module name
-  $module-map: map-set($module-map, 'module', get-module-name($cleaned-selector));
-
-  // Get and set component name @TODO
-  // $component-name: get-component($cleaned-selector);
-
-  // Get and set modifiers @TODO
-  // $modifiers: get-modifiers($cleaned-selector);
-
-  @return $module-map;
+@function shift-pseudo-elements($selector) {
+    @if string.index($selector, '::before') {
+        $selector: sass-boost.str-replace($selector, '::before', '') + '::before';
+    }
+    @if str-index($selector, '::after') {
+        $selector: sass-boost.str-replace($selector, '::after', '') + '::after';
+    }
+    @return $selector;
 }
-/// Alias function to option()
-///
-/// @param {map} $map
-/// @param {arglist} $keys
-@function setting($map, $keys...) {
-  @return option($map, $keys...);
-}
-/// Strip the glue (-- , __) from a string
-///
-/// @param {string} $string
-/// @param {string} $glue
-@function strip-glue($string, $glue) {
-  $placeholder: random(99999);
+@use "sass:meta";
 
-  $clean-string: str-replace($string, $string, $placeholder + $string);
-  $clean-string: str-replace($clean-string, $placeholder + $glue, '');
+@use "node_modules/Sass-Boost/dist/sass-boost";
 
-  @return $clean-string;
-}
 /// Get a value from $theme if it exists
 ///
 /// @param {arglist} $args
 @function theme($args...) {
-  @if variable-exists('theme') and map-get-deep($theme, $args...) {
-    @return map-get-deep($theme, $args...);
+  @if meta.variable-exists('theme') and sass-boost.map-get-deep($theme, $args...) {
+    @return sass-boost.map-get-deep($theme, $args...);
   }
 
   @else {
     @return ('theme', $args);
   }
 }
+@use "sass:meta";
+
+@use "node_modules/Sass-Boost/dist/sass-boost";
+
 /// Get a value from the current module's configuration
 ///
 /// @param {arglist} $options
 @function this($options...) {
-  $value: '';
+  $value: "";
 
-  @if (variable-exists('smart-config')) {
-    $value: option($smart-config, $options...);
+  @if (meta.variable-exists("config") and $config) {
+    $value: sass-boost.map-get-deep($config, $options...);
   }
 
-  @else if (variable-exists('config')) {
-    $value: option($config, $options...);
+  @if (meta.variable-exists("sassConfigParser") and $sassConfigParser) {
+    $value: meta.call(meta.get-function($sassConfigParser), $value);
   }
 
-  @else {
-    @warn 'no config can be found for #{$module}';
-  }
-
-  $debug: true;
-
-  @if (variable-exists('sassConfigParser') and $sassConfigParser) {
-    $value: call(get-function($sassConfigParser), $value);
-  }
-
-  $this: &;
-
-  @if length($this) > 0 {
-    @if str-index(inspect(nth($this, 1)), '%') == 1 {
-      $debug: false;
-    }
-  }
-
-  @if $debug and not $value and $value != false {
+  @if not $value and $value != false {
     @warn '#{$options} not found in #{$module} config';
   }
 
   @return $value;
 }
-/// Determine if a passed value should be considered 'enabled'
-///
-/// @param {*} $value - the value to check
-/// @returns {*} - whether or not the option is enabled
-@function value-enabled($value) {
-  // If the value is a map
-  @if type-of($value) == 'map' {
-    // Does the map contain the 'enabled' key?
-    @if map-has-key($value, 'enabled') {
-      @return map-get($value, 'enabled');
-    }
-    @else {
-      @return $value;
-    }
-  }
-  // If the value is a list
-  @else if type-of($value) == 'list' {
-    // Is the first value a bool?
-    @if type-of(nth($value, 1)) == 'bool' {
-      @return nth($value, 1);
-    }
-    @else {
-      @return $value;
-    }
-  }
-  @else {
-    @return $value;
-  }
-}
+
+@use "sass:list";
+@use "sass:map";
+@use "sass:meta";
+@use "sass:string";
+
 /// Create a new module
 ///
-/// @param {string|list} $modules - The module(s) you wish to create
+/// @param {string} $module - The module you wish to create
 /// @param {map} $content
-@mixin module(
-  $modules: if(variable-exists('config'), (map-get($config, 'name')), ''),
-  $content: ()
-) {
-  $config: () !default;
-
-  @if type-of($modules) == 'map' {
-    $modules: if(variable-exists('config'), (map-get($config, 'name')), '');
-  }
-
-  @if ($moduleNamespace) {
-    $modules: $moduleNamespace + $modules;
-  }
-
-  // disable any output
-  $disable-output: if(variable-exists('disable-output'), $disable-output, false);
-
-  @if variable-exists('config') and map-has-key($config, 'disable-output') {
-    $disable-output: map-get($config, 'disable-output');
-  }
-
-  // @TODO this needs to identify if nested within itself, not nested in general
+/// @param {map} $config
+@mixin module($module: null, $content: (), $config: if(global-variable-exists('config'), $config, ())) {
   $nested: &;
+  $selectors: ();
+  $uid: string.unique-id();
+
+  @if not $module {
+    @if (map.has-key($config, "name")) {
+      $module: map.get($config, "name");
+    } @else {
+      $module: $uid;
+    }
+  }
 
   // We are creating a root module, so create a global variable
   @if not $nested {
-    $module: $modules !global;
+    $module: $module !global;
     $this: $module !global;
   }
 
-  $selectors: ();
+  @each $module in $module {
+    $namespace: $module;
 
-  @each $module in $modules {
-    $selectors: join($selectors, '.#{$module}', comma);
-    $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
+    @if (map.has-key($config, "scope")) {
+      $namespace: #{map.get($config, "scope")}-#{$namespace}
+    }
+
+    $selectors: join($selectors, ".#{$namespace}", comma);
+    $selectors: join($selectors, '[class*="#{$namespace}#{$modifierGlue}"]', comma);
   }
 
-  $targetExists: variable-exists('config') and map-has-key($config, 'target');
-  // @TODO tidy up how $target is used here and in $modifier - also probably won't work for component()
-  $target: if($targetExists, ('module': $module, 'target': map-get($config, 'target')), false) !global;
-
-  @if not $disable-output {
-    #{$selectors} {
-      @if not $nested {
-        @include module-content($modules, $config, $target);
-      }
-
-      @content;
-
-      @include parse-cq($content);
+  #{$selectors} {
+    @if not $nested {
+      @include module-content($module, $config);
     }
+
+    @content;
+
+    @include parse-cq($content);
   }
 }
 
@@ -2149,55 +1941,35 @@ $css-properties: (
 ///
 /// @param {string|list} $module
 /// @param {map} $config
-/// @param {*} $target
-@mixin module-content($module, $config, $target) {
-  @include extend-modifiers;
-  @include combine-modifiers;
-
-  @if variable-exists('config') and $outputCSSFromConfig {
-    @if $module == map-get($config, 'name') or $target {
-      @if type-of($target) == 'map' and map-get($target, 'module') == $module {
-        #{map-get($target, 'target')} {
-          @include parse-cq($config);
-        }
-      }
-      @else {
-        @include parse-cq($config);
-      }
-    }
+/// @param {string} $uid
+@mixin module-content($module, $config) {
+  /// Extend modifiers into the naked module
+  @if map.get($config, "modifiers") {
+    @include extend(map.get($config, "modifiers"));
   }
-}
 
-/// Alias for module() mixin
-///
-/// @param {string|list} $modules - The module(s) you wish to create
-@mixin modules($modules) {
-  @include module($modules) {
-    @content;
-  }
-}
-
-/// Combine modifiers into a new, single modifier
-///
-/// @param {map} $styles - The CSS styles to output
-@mixin combine-modifiers($combine: if(variable-exists('config'), (map-get($config, 'combine')), '()')) {
-  @if variable-exists('config') and $combine {
-    @each $new-modifier, $target-modifiers in $combine {
+  /// Combine modifiers into a new, single modifier
+  @if map.get($config, "combine") {
+    @each $new-modifier, $target-modifiers in map.get($config, "combine") {
       @include modifier($new-modifier) {
         @include extend(($target-modifiers));
       }
     }
   }
-}
 
-/// Extend modifiers into the naked module
-///
-/// @param {map} $styles - The CSS styles to output
-@mixin extend-modifiers($modifiers: if(variable-exists('config'), (map-get($config, 'modifiers')), '()')) {
-  @if variable-exists('config') and $modifiers {
-    @include extend(($modifiers));
+  @if $outputCSSFromConfig and $module == map.get($config, "name") {
+    @include parse-cq($config);
   }
 }
+
+@use "sass:selector";
+@use "sass:string";
+@use "sass:list";
+
+@use "node_modules/Sass-Boost/dist/sass-boost";
+
+@use "../utilities/utils";
+
 /// Create a component based off the main module
 ///
 /// @param {string|list} $components - The component or components to be used
@@ -2212,69 +1984,53 @@ $css-properties: (
   $glue: $componentGlue,
   $cascade: true
 ) {
-  $this: &;
-  $module-map: selector-to-map($this);
-  $selectors: '[class*="#{$module}#{$glue}"]';
-  $namespace: map-get($module-map, 'module');
-
-  @if str-index($namespace, '%') == 1 {
-    $namespace: $module;
-  }
-
-  @if $sub-component {
-    $namespace: nth(module-tree(&), length(module-tree(&)));
-  }
+  $prev-namespace: utils.get-namespace(&, $modifierGlue);
+  $module-name: utils.get-module($prev-namespace, $componentGlue);
+  $selectors: '[class*="#{$module-name}#{$glue}"]';
+  $parents: ();
 
   @if $components {
     $selectors: ();
 
     @each $component in $components {
-      $selector: '.#{$namespace}#{$glue}#{$component}, [class*="#{$namespace}#{$glue}#{$component}#{$modifierGlue}"]';
+      $new-namespace: #{if($sub-component, $prev-namespace, $module-name)}#{$glue}#{$component};
+      $selector: '.#{$new-namespace}, [class*="#{$new-namespace}#{$modifierGlue}"]';
 
       @if not $cascade {
-        $selector: '> #{$selector}';
+        $selector: "> #{$selector}";
       }
 
       $selectors: join($selectors, $selector, comma);
     }
   }
 
-  $parents: ();
-
   @each $selector in & {
     // spoof the selector into a list
-    $selector: selector-parse(str-replace(inspect($selector), ' ', ', '));
+    $selector: selector.parse(sass-boost.str-replace(#{$selector}, " ", ", "));
 
-    $is-modifier: str-index(inspect(nth($selector, length($selector))), '[class*="#{$modifierGlue}');
-    $is-pseudo-state: str-index(inspect(nth($selector, length($selector))), ':');
+    $last-item: list.nth($selector, list.length($selector));
+    $is-modifier: string.index(#{$last-item}, '[class*="#{$modifierGlue}');
+    $is-pseudo-state: string.index(#{$last-item}, ":");
 
-    // if the last item isn't a modifier or pseudo state, remove it
-    @if not ($is-modifier or $is-pseudo-state) {
-      $selector: list-remove($selector, nth($selector, length($selector)));
-    }
-
-    @if length($selector) == 1 {
-      $selector: nth($selector, 1);
+    @if not($is-modifier or $is-pseudo-state) {
+      $selector: sass-boost.list-remove($selector, $last-item);
     }
 
     // Re-build the parent selector
-    $parents: append($parents, str-replace(inspect($selector), ', ', ' '), comma);
+    @if list.length($selector) > 0 {
+      $parents: list.append($parents, sass-boost.str-replace(#{$selector}, ", ", " "), comma);
+    }
   }
 
-  $parents: list-remove-duplicates($parents);
+  $parents: sass-boost.list-remove-duplicates($parents);
 
-  @if length($parents) == 1 {
-    $parents: nth($parents, 1);
-  }
-
-  @if ($parents == '()') {
+  @if list.length($parents) == 0 {
     @at-root #{$selectors} {
       @content;
 
       @include parse-cq($content);
     }
-  }
-  @else {
+  } @else {
     @at-root #{$parents} {
       #{$selectors} {
         @content;
@@ -2305,64 +2061,61 @@ $css-properties: (
     @content;
   }
 }
+
+@use "sass:list";
+@use "sass:meta";
+@use "sass:string";
+
+@use "../utilities/utils";
+
 /// Create a modifier for a module
 ///
 /// @param {string|list} $modifiers  - The modifier(s) which you wish to create
-/// @param {string} $special [null] - Add special contextual options to modifier
 /// @param {bool} $glue ['--'] - Desired modifier separator/glue
-/// @param {string} $module
-@mixin modifier($modifiers, $special: null, $glue: $modifierGlue, $module: $module) {
+@mixin modifier($modifiers, $glue: $modifierGlue) {
   $scope: &;
+  $namespace: utils.get-namespace(&, $modifierGlue);
+  $modifiers-chunk: ();
 
-  @if str-index(inspect(&), '.#{$module}') {
+  // remove root selector chunks from selector
+  @if string.index(#{&}, '.#{$namespace},') {
     $scope: ();
 
-    @for $i from 1 through length(&) {
+    @for $i from 1 through list.length(&) {
       @if $i % 2 == 0 {
-        $scope: append($scope, nth(&, $i), comma);
+        $scope: list.append($scope, list.nth(&, $i), comma);
       }
     }
   }
 
-  $modifiers-chunk: ();
-
   @each $modifier in $modifiers {
-    @if $special == 'not' {
-      $modifiers-chunk: join($modifiers-chunk, ':not([class*="#{$glue}#{$modifier}"])', comma);
-    }
-    @else {
-      $modifiers-chunk: join($modifiers-chunk, '[class*="#{$glue}#{$modifier}"]', comma);
-    }
+    $modifiers-chunk: list.join($modifiers-chunk, '[class*="#{$glue}#{$modifier}"]', comma);
 
     $selector: #{$scope}#{$modifiers-chunk};
 
     // pseudo-elements must be at the end
-    @if str-index($selector, ':before') and str-index($selector, ':before') != (str-length($selector) - 6) {
-      $selector: str-replace($selector, ':before', '') + ':before';
-    }
-    @if str-index($selector, ':after') and str-index($selector, ':after') != (str-length($selector) - 5) {
-      $selector: str-replace($selector, ':after', '') + ':after';
-    }
+    $selector: utils.shift-pseudo-elements($selector);
 
-    @at-root #{$selector} {
-      @content;
+    @at-root {
+      %#{$namespace}-#{$modifier}, #{$selector} {
+        @content;
+      }
     }
   }
 }
 
 /// Alias for modifier() mixin
 @mixin modifiers($args...) {
-  @include modifier($args...) {
-    @content;
-  }
+  @include modifier($args...) { @content; }
 }
 
 /// Alias for modifier() mixin
 @mixin is($args...) {
-  @include modifier($args...) {
-    @content;
-  }
+  @include modifier($args...) { @content; }
 }
+@use "sass:list";
+@use "sass:meta";
+
 /// Extend one or more modifiers of a module to create a new modifier
 /// combining the ones you pass
 ///
@@ -2370,30 +2123,14 @@ $css-properties: (
 /// @param {string} $parent [null] - The parent module if not current one
 /// @param {bool} $core [false] - Extend the core '.module' styles?
 @mixin extend($modifiers: null, $parent: null, $core: false) {
-  $namespaced-parent: if($moduleNamespace and $parent, $moduleNamespace + $parent, $parent);
-
   @if $core or not $modifiers {
-    @extend .#{$namespaced-parent};
+    @extend .#{$parent};
   }
 
   @each $modifier in $modifiers {
-    @if type-of($modifier) == 'string' {
-      $selector: if($parent, $namespaced-parent, $module);
+    $namespace: if($parent, $parent, $module);
 
-      @extend [class*="#{$selector}#{$modifierGlue}"][class*="#{$modifierGlue}#{$modifier}"];
-    }
-    @else if type-of($modifier) == 'list' {
-      $namespaced-selector: ('[class*="#{$namespaced-parent}#{$modifierGlue}"]');
-      $module-selector: ('[class*="#{$module}#{$modifierGlue}"]');
-
-      $selectors: if($parent, $namespaced-selector, $module-selector);
-
-      @each $item in $modifier {
-        $selectors: join($selectors, '[class*="#{$modifierGlue}#{$item}"]', comma);
-      }
-
-      @extend #{$selectors};
-    }
+    @extend %#{$namespace}-#{$modifier};
   }
 }
 
@@ -2401,11 +2138,15 @@ $css-properties: (
 @mixin _module($module, $modifiers: null, $core: true) {
   @include extend($parent: $module, $modifiers: $modifiers, $core: $core);
 }
+
+@use "../utilities/utils";
+
 /// Apply styles to a component within a certain context
 ///
-/// @param {arglist} $context
-@mixin context($context...) {
-  $selector: create-selector-from-context($context...);
+/// @param {(string|list)} $block - The name of the module/component that has the context
+/// @param {string} $context - The context you wish to test
+@mixin context($block, $context: null) {
+  $selector: utils.create-context-selector($block, $context, $modifierGlue, $componentGlue);
   $scope: &;
 
   @at-root #{$selector} {
@@ -2414,49 +2155,25 @@ $css-properties: (
     }
   }
 }
-/// Apply styles to a module if a passed option returns true
-///
-/// @param {arglist} $option-path - The option which you wish to test against
-@mixin option($option-path...) {
-  $value  : map-get-deep($config, $option-path...);
-  $option : nth($option-path, length($option-path)) !global;
+@use "sass:list";
 
-  // Output the styles if the option is enabled
-  @if value-enabled($value) {
-    @content;
+@use "../utilities/utils";
 
-    @include parse-cq($value);
-  }
-
-  // Create a modifier for the option if it is not enabled
-  // by default
-  @if $extendOptions and not value-enabled($value) {
-    @include modifier($option) {
-      @content;
-
-      @include parse-cq($value);
-    }
-  }
-}
 /// Used to generate selectors for pseudo states
 ///
 /// @param {string} $state
-@mixin pseudo-state($state) {
+@mixin pseudo-state($state, $class: true) {
   $scope: &;
   $selector: ();
+  $connector: if($class, ':', '::');
 
   @each $item in $scope {
-    $chunk: '#{$item}:#{$state}';
+    $chunk: '#{$item}#{$connector}#{$state}';
 
     // pseudo-elements must be at the end
-    @if str-index($chunk, ':before') and str-index($chunk, ':before') != (str-length($chunk) - 5) {
-      $chunk: str-replace($chunk, ':before', '') + ':before';
-    }
-    @if str-index($chunk, ':after') and str-index($chunk, ':after') != (str-length($chunk) - 5) {
-      $chunk: str-replace($chunk, ':after', '') + ':after';
-    }
+    $chunk: utils.shift-pseudo-elements($chunk);
 
-    $selector: append($selector, $chunk, comma);
+    $selector: list.append($selector, $chunk, comma);
   }
 
   @at-root #{$selector} {
@@ -2464,35 +2181,17 @@ $css-properties: (
   }
 }
 
-/// Alias for `pseudo-state` mixin with $state: 'hover'
-@mixin hover {
-  @include pseudo-state('hover') {
+/// Alias
+@mixin pseudo-element($state) {
+  @include pseudo-state($state, $class: false) {
     @content;
   }
 }
-/// Apply styles when a defined option is a particular value
-///
-/// @param $value - The value you wish to apply styles to
-@mixin value($value) {
-  // Create a unique, random placeholder to store styles
-  $placeholder : $value + random(9999);
-  $get-option: option($config, $option);
-  $target: if(type-of($get-option) == 'map', option($config, $option, 'enabled'), $get-option);
 
-  // Determine if the option's value is our value of interest
-  $enabled: if($target == $value, true, false);
-
-  @if ($enabled) {
+/// Sugar for `pseudo-state` mixin with $state: 'hover'
+@mixin hover {
+  @include pseudo-state('hover') {
     @content;
-  }
-
-  // Create a modifier for the option
-  @if $extendOptions and not $enabled {
-    @include modifier($option) {
-      @include modifier($value) {
-        @content;
-      }
-    }
   }
 }
 /// Wrap a module or group a collection of modules
@@ -2511,7 +2210,5 @@ $css-properties: (
 
 /// Alias for wrapper() mixin
 @mixin group($scope: $module) {
-  @include wrapper('group', $scope) {
-    @content;
-  }
+  @include wrapper('group', $scope) { @content; }
 }

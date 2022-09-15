@@ -8,7 +8,7 @@
 /// @param {string} $module - The module you wish to create
 /// @param {map} $content
 /// @param {map} $config
-@mixin module($module: null, $content: (), $config: ()) {
+@mixin module($module: null, $content: (), $config: if(global-variable-exists('config'), $config, ())) {
   $nested: &;
   $selectors: ();
   $uid: string.unique-id();
@@ -28,8 +28,14 @@
   }
 
   @each $module in $module {
-    $selectors: join($selectors, ".#{$module}", comma);
-    $selectors: join($selectors, '[class*="#{$module}#{$modifierGlue}"]', comma);
+    $namespace: $module;
+
+    @if (map.has-key($config, "scope")) {
+      $namespace: #{map.get($config, "scope")}-#{$namespace}
+    }
+
+    $selectors: join($selectors, ".#{$namespace}", comma);
+    $selectors: join($selectors, '[class*="#{$namespace}#{$modifierGlue}"]', comma);
   }
 
   #{$selectors} {
