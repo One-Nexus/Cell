@@ -8,42 +8,40 @@
 /// @param {string} $module - The module you wish to create
 /// @param {map} $content
 /// @param {map} $config
-@mixin module($module: null, $content: (), $config: if(global-variable-exists('config'), $config, ())) {
+@mixin module(
+  $module: null, 
+  $content: (), 
+  $config: if(global-variable-exists('config'), $config, ()),
+  $theme: if(global-variable-exists('theme'), $theme, ())
+) {
   $nested: &;
   $selectors: ();
-  $uid: string.unique-id();
+  $scopeId: configVal($config, "scope", if(global-variable-exists('scope'), $scope, null));
 
-  $useScopeAsNamespace: if(
-    global-variable-exists('theme') and map.has-key($theme, "useScopeAsNamespace"), 
-    map.get($theme, "useScopeAsNamespace"),
-    false
-  );
+  $scopedCSS: getRootConfigOpt("scopedCSS", false, $config, $theme) !default;
+  $useScopeAsNamespace: getRootConfigOpt("useScopeAsNamespace", false, $config, $theme) !default;
+  $outputCSSFromConfig: getRootConfigOpt("outputCSSFromConfig", false, $config, $theme) !default;
 
   @if not $module {
     @if (map.has-key($config, "name")) {
       $module: map.get($config, "name");
     } @else {
-      $module: $uid;
+      $module: string.unique-id();
     }
   }
 
   $namespace: $module;
 
-  $scopeId: if(
-    map.has-key($config, "scope"), 
-    map.get($config, "scope"), 
-    if(global-variable-exists('scope'), $scope, null)
-  );
-
-  @if ($scopeId) {
+  @if ($scopeId and $scopedCSS) {
     $namespace: if($useScopeAsNamespace, $scopeId, #{$scopeId}-#{$namespace});
   }
 
   // We are creating a root module, so create a global variable
   @if not $nested {
     $module: $module !global;
-    $globalNamespace: $namespace !global;
     $this: $module !global;
+    $globalNamespace: $namespace !global;
+    $globalScopedCss: $scopedCSS !global;
   }
 
   @each $module in $module {
@@ -53,7 +51,7 @@
 
   #{$selectors} {
     @if not $nested {
-      @include module-content($module, $config);
+      @include module-content($module, $config, $outputCSSFromConfig);
     }
 
     @content;
@@ -63,11 +61,7 @@
 }
 
 /// Render a module's content
-///
-/// @param {string|list} $module
-/// @param {map} $config
-/// @param {string} $uid
-@mixin module-content($module, $config) {
+@mixin module-content($module, $config, $outputCSSFromConfig) {
   /// Extend modifiers into the naked module
   @if map.get($config, "modifiers") {
     @include extend(map.get($config, "modifiers"));
@@ -85,4 +79,17 @@
   @if $outputCSSFromConfig and $module == map.get($config, "name") {
     @include parse-cq($config);
   }
+}
+
+// Helpers
+@function configVal($config, $value, $default) {
+  @return if(map.has-key($config, $value), map.get($config, $value), $default);
+};
+
+@function themeVal($theme, $value, $default) {
+  @return if(map.has-key($theme, $value), map.get($theme, $value), $default);
+};
+
+@function getRootConfigOpt($value, $default, $config, $theme) {
+  @return configVal($config, $value, themeVal($theme, $value, $default));
 }

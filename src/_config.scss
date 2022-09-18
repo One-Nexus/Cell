@@ -7,8 +7,5 @@ $componentGlue: "__" !default;
 // Custom parser to use for configuration
 $sassConfigParser: null !default;
 
-// Automatically generate CSS from module configuration
-$outputCSSFromConfig: false !default;
-
 // The variable to hold a single module (do not edit)
 $module: null !default;
