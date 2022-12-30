@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "concat": "^1.0.3",
-    "mocha": "^6.2.2",
+    "mocha": "^10.2.0",
     "node-sass": "^4.13.1",
     "sass-true": "^5.0.0",
     "sassdoc": "^2.5.0",
